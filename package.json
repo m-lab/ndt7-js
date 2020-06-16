@@ -1,0 +1,39 @@
+{
+  "name": "ndt7",
+  "version": "0.0.1",
+  "description": "NDT7 client for measuring networks",
+  "main": "ndt7.js",
+  "scripts": {
+    "test": "mocha src/test",
+    "build": "tsc",
+    "lint": "npx eslint --ext .js src/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "github.com/m-lab/ndt7-js"
+  },
+  "keywords": [
+    "network",
+    "measurement",
+    "bbr",
+    "ndt",
+    "ndt7"
+  ],
+  "author": "",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "eslint": "^7.2.0",
+    "mocha": "^7.2.0"
+  },
+  "files": [
+    "src/**/*"
+  ],
+  "dependencies": {
+    "fetch": "^1.1.0",
+    "isomorphic-ws": "^4.0.1",
+    "node-fetch": "^2.6.0",
+    "workerjs": "^0.1.1",
+    "ws": "^7.3.0"
+  }
+}
