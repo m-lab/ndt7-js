@@ -71,8 +71,8 @@ const downloadTest = function(sock, postMessage, now) {
           //  (bytes) * (bits / byte) * (megabits / bit) = Megabits
           //  (Megabits) * (1/milliseconds) * (milliseconds / second) = Mbps
           // Collect the conversion constants, we find it is 8*1000/1000000
-          // Factor out like terms and we get: 8*1000/1000000 = .016
-          MeanClientMbps: (total / (t - start)) * 0.016,
+          // Factor out like terms and we get: 8*1000/1000000 = .008
+          MeanClientMbps: (total / (t - start)) * 0.008,
         },
         Source: 'client',
       });

@@ -32,6 +32,16 @@ const uploadTest = function(sock, postMessage, now) {
     }
   };
 
+  sock.onmessage = function(ev) {
+    if (typeof ev.data !== 'undefined') {
+      postMessage({
+        MsgType: 'measurement',
+        Source: 'server',
+        ServerMessage: ev.data,
+      });
+    }
+  };
+
   /**
    * uploader is the main loop that uploads data in the web browser. It must
    * carefully balance a bunch of factors:
@@ -84,23 +94,12 @@ const uploadTest = function(sock, postMessage, now) {
     }
 
     const clientMeasurementInterval = 250; // ms
-    if (t >= previous + clientMeasurementInterval) {
-      postMessage({
-        MsgType: 'measurement',
-        AppInfo: {
-          ElapsedTime: (t - start) / 1000, // seconds
-          NumBytes: (total - sock.bufferedAmount),
-        },
-        Origin: 'client',
-        Test: 'upload',
-      });
-      previous = t;
-    }
+    const loopEndTime = Math.min(previous + clientMeasurementInterval, end);
 
     const desiredBuffer = 8 * data.length;
-    const loopEndTime = Math.min(previous + clientMeasurementInterval, end);
     // While we would still like to buffer more messages, and we haven't been
-    // running for too long, and we don't need to resize the message.
+    // running for too long, and we don't need to resize the message... keep
+    // sending.
     while (sock.bufferedAmount < desiredBuffer &&
            t < loopEndTime &&
            total < nextSizeIncrement
@@ -108,6 +107,25 @@ const uploadTest = function(sock, postMessage, now) {
       sock.send(data);
       t = now();
       total += data.length;
+    }
+
+    if (t >= previous + clientMeasurementInterval) {
+      const numBytes = total - sock.bufferedAmount;
+      // ms * seconds / ms = seconds
+      const elapsedTime = (t - start) / 1000;
+      // bytes * bits/byte * megabits/bit * 1/seconds = Mbps
+      const meanMbps = numBytes * 8 / 1000000 / elapsedTime;
+      postMessage({
+        MsgType: 'measurement',
+        ClientData: {
+          ElapsedTime: elapsedTime,
+          NumBytes: numBytes,
+          MeanClientMbps: meanMbps,
+        },
+        Source: 'client',
+        Test: 'upload',
+      });
+      previous = t;
     }
 
     // Loop the uploader function in a way that respects the JS event handler.

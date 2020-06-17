@@ -19,19 +19,23 @@ ndt7.test(
         });
       },
       downloadComplete: function(data) {
-        // (bytes / second) * (bits / byte) * (megabits / bit) = Mbps
-        serverBw = data.LastServerMeasurement.BBRInfo.BW * 8 / 1000000;
-        clientBw = data.LastClientMeasurement.MeanClientMbps;
+        // (bytes/second) * (bits/byte) * (megabits/bit) = Mbps
+        const serverBw = data.LastServerMeasurement.BBRInfo.BW * 8 / 1000000;
+        const clientGoodput = data.LastClientMeasurement.MeanClientMbps;
         console.log(
             `Download test is complete:
-              Instantaneous server bandwidth: ${serverBw}
-              Mean client bandwidth: ${clientBw}`);
+    Instantaneous server bottleneck bandwidth estimate: ${serverBw} Mbps
+    Mean client goodput: ${clientGoodput} Mbps`);
       },
       uploadComplete: function(data) {
+        // bytes * (bits/byte() * (megabits/bit) * (1/seconds) = Mbps
+        const serverBw =
+            data.LastServerMeasurement.TCPInfo.BytesReceived * 8 / 1000000 / 10;
+        const clientGoodput = data.LastClientMeasurement.MeanClientMbps;
         console.log(
             `Upload test is complete:
-              Mean server bandwidth: ${data.LastServerMeasurement}
-              Mean client bandwidth: ${data.LastClientMeasurement}`);
+    Mean server throughput: ${serverBw} Mbps
+    Mean client goodput: ${clientGoodput} Mbps`);
       },
     },
 ).then((exitcode) => {
