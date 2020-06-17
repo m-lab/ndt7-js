@@ -5,8 +5,9 @@
   "main": "ndt7.js",
   "scripts": {
     "test": "mocha src/test",
-    "build": "tsc",
-    "lint": "npx eslint --ext .js src/"
+    "coverage": "nyc --reporter=lcovonly  --file=coverage.cov --reporter=text npm run test",
+    "lint": "eslint --ext .js src/",
+    "document": "jsdoc2md --files=src/ndt7.js"
   },
   "repository": {
     "type": "git",
@@ -23,8 +24,12 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "chai": "^4.2.0",
+    "coveralls": "^3.1.0",
     "eslint": "^7.2.0",
-    "mocha": "^7.2.0"
+    "eslint-config-google": "^0.14.0",
+    "jsdoc-to-markdown": "^6.0.1",
+    "mocha": "^7.2.0",
+    "nyc": "^15.1.0"
   },
   "files": [
     "src/**/*"
