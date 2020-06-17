@@ -8,3 +8,4 @@ script:
 - npm test
 - npm run coverage
 - npm run document && git diff --exit-code README.md
+- npm run minify && git diff --exit-code src/ndt7.min.js
