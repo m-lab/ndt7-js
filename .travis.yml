@@ -4,8 +4,16 @@ node_js:
 - 14
 
 script:
-- npm run lint
-- npm test
+# Coverage runs the tests, so this implies `npm test`
+# TODO: upload coverage to coveralls.io
 - npm run coverage
+# Lint the code. Note that the linter version is saved in
+# package-lock.json, which means that eslint on the host and the server
+# should be exactly the same.
+- npm run lint
+# Verify that the things that are compiled and checked in have been
+# generated correctly from the most recent sources.
 - npm run document && git diff --exit-code README.md
 - npm run minify && git diff --exit-code src/ndt7.min.js
+
+# TODO Upload the code to npm after it is tagged.
