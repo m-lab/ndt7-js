@@ -90,6 +90,9 @@
         callbacks.error(`Could not understand response from ${lbURL}: ${js}`);
         return {};
       }
+
+      // TODO: do not discard unused results. If the first server is unavailable
+      // the client should quickly try the next server.
       const choice = js.results[Math.floor(Math.random() * js.results.length)];
       callbacks.serverChosen(choice);
       return choice.urls;
