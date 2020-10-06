@@ -111,7 +111,7 @@ const uploadTest = function(sock, postMessage, now) {
 
     if (t >= previous + clientMeasurementInterval) {
       const numBytes = total - sock.bufferedAmount;
-      // ms * seconds / ms = seconds
+      // ms / 1000 = seconds
       const elapsedTime = (t - start) / 1000;
       // bytes * bits/byte * megabits/bit * 1/seconds = Mbps
       const meanMbps = numBytes * 8 / 1000000 / elapsedTime;
