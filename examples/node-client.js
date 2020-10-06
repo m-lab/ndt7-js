@@ -19,7 +19,7 @@ ndt7.test(
         });
       },
       downloadComplete: function(data) {
-        // (bytes/second) * (bits/byte) * (megabits/bit) = Mbps
+        // (bytes/second) * (bits/byte) / (megabits/bit) = Mbps
         const serverBw = data.LastServerMeasurement.BBRInfo.BW * 8 / 1000000;
         const clientGoodput = data.LastClientMeasurement.MeanClientMbps;
         console.log(
@@ -28,6 +28,7 @@ ndt7.test(
     Mean client goodput: ${clientGoodput} Mbps`);
       },
       uploadComplete: function(data) {
+        // TODO: used actual upload duration for rate calculation.
         // bytes * (bits/byte() * (megabits/bit) * (1/seconds) = Mbps
         const serverBw =
             data.LastServerMeasurement.TCPInfo.BytesReceived * 8 / 1000000 / 10;
