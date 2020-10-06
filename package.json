@@ -1,0 +1,46 @@
+{
+  "name": "ndt7",
+  "version": "0.0.1",
+  "description": "NDT7 client for measuring networks",
+  "main": "ndt7.js",
+  "scripts": {
+    "test": "mocha src/test",
+    "coverage": "nyc --reporter=lcovonly  --file=coverage.cov --reporter=text npm run test",
+    "lint": "eslint --ext .js src/",
+    "document": "jsdoc2md --files=src/ndt7.js --template README.template.md > README.md",
+    "minify": "minify --js < src/ndt7.js > src/ndt7.min.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "github.com/m-lab/ndt7-js"
+  },
+  "keywords": [
+    "network",
+    "measurement",
+    "bbr",
+    "ndt",
+    "ndt7"
+  ],
+  "author": "",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "coveralls": "^3.1.0",
+    "eslint": "^7.2.0",
+    "eslint-config-google": "^0.14.0",
+    "jsdoc-to-markdown": "^6.0.1",
+    "minify": "^5.1.1",
+    "mocha": "^7.2.0",
+    "nyc": "^15.1.0"
+  },
+  "files": [
+    "src/**/*"
+  ],
+  "dependencies": {
+    "fetch": "^1.1.0",
+    "isomorphic-ws": "^4.0.1",
+    "node-fetch": "^2.6.0",
+    "workerjs": "^0.1.1",
+    "ws": "^7.3.0"
+  }
+}
