@@ -16,7 +16,7 @@ const workerMain = function(ev) {
   let now = () => new Date().getTime();
   if (typeof performance !== 'undefined' &&
       typeof performance.now !== 'undefined') {
-    now = performance.now;
+    now = () => performance.now();
   }
   uploadTest(sock, postMessage, now);
 };
