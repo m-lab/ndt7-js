@@ -17,7 +17,7 @@ const workerMain = function(ev) {
   let now = () => new Date().getTime();
   if (typeof performance !== 'undefined' &&
       typeof performance.now !== 'undefined') {
-    now = performance.now;
+    now = () => performance.now();
   }
   downloadTest(sock, postMessage, now);
 };
