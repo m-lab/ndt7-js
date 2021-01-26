@@ -12,7 +12,8 @@
 (function() {
   'use strict';
 
-  // Initial includes in case this is running as a node module.
+  // If this is running as a node module then WebSocket, fetch, and Worker
+  // may all need to be defined.  In the browser they should already exist.
   if (typeof WebSocket === 'undefined') {
     global.WebSocket = require('isomorphic-ws');
   }
@@ -33,17 +34,17 @@
     //
     // This function is not exported.
     const cb = function(name, callbacks, defaultFn) {
-      // If no default function is provided, use the empty function.
-      if (typeof defaultFn === 'undefined') {
-        defaultFn = function() {};
-      }
       if (typeof(callbacks) !== 'undefined' && name in callbacks) {
         return callbacks[name];
-      } else {
+      } else if (typeof defaultFn !== 'undefined') {
         return defaultFn;
+      } else {
+        // If no default function is provided, use the empty function.
+        return function() {};
       }
     };
 
+    // The default response to an error is to throw an exception.
     const defaultErrCallback = function(err) {
       throw new Error(err);
     };
@@ -69,14 +70,16 @@
         serverDiscovery: cb('serverDiscovery', userCallbacks),
         serverChosen: cb('serverChosen', userCallbacks),
       };
+      let protocol = 'wss';
+      if (config && ('protocol' in config)) {
+        protocol = config.protocol;
+      }
 
       // If a server was specified, use it.
       if (config && ('server' in config)) {
         return {
-          'ws:///ndt/v7/download': 'ws://' + config.server + '/ndt/v7/download',
-          'ws:///ndt/v7/upload': 'ws://' + config.server + '/ndt/v7/upload',
-          'wss:///ndt/v7/download': 'wss://' + config.server + '/ndt/v7/download',
-          'wss:///ndt/v7/upload': 'wss://' + config.server + '/ndt/v7/upload',
+          '///ndt/v7/download': protocol + '://' + config.server + '/ndt/v7/download',
+          '///ndt/v7/upload': protocol + '://' + config.server + '/ndt/v7/upload',
         };
       }
 
@@ -95,7 +98,10 @@
       // the client should quickly try the next server.
       const choice = js.results[Math.floor(Math.random() * js.results.length)];
       callbacks.serverChosen(choice);
-      return choice.urls;
+      return {
+        '///ndt/v7/download': choice.urls[protocol + '://' + config.server + '/ndt/v7/download'],
+        '///ndt/v7/upload': choice.urls[protocol + '://' + config.server + '/ndt/v7/upload'],
+      };
     }
 
     /*
@@ -145,13 +151,15 @@
       // execution.  The MsgTpe of `ev` determines which callback the message
       // gets forwarded to.
       worker.onmessage = function(ev) {
-        if (!ev.data || ev.data.MsgType === 'error') {
+        if (!ev.data || !ev.data.MsgType || ev.data.MsgType === 'error') {
           worker.resolve(3);
           const msg = (!ev.data) ? `${testType} error` : ev.data.Error;
           callbacks.error(msg);
         } else if (ev.data.MsgType === 'start') {
-          callbacks.start(ev.data);
+          callbacks.start(ev.data.Data);
         } else if (ev.data.MsgType == 'measurement') {
+          // For performance reasons, we parse the JSON outside of the thread
+          // doing the downloading or uploading.
           if (ev.data.Source == 'server') {
             serverMeasurement = JSON.parse(ev.data.ServerMessage);
             callbacks.measurement({
@@ -207,8 +215,9 @@
         measurement: cb('downloadMeasurement', userCallbacks),
         complete: cb('downloadComplete', userCallbacks),
       };
+      const workerfile = config.downloadworkerfile || 'ndt7-download-worker.js';
       return await runNDT7Worker(
-          config, callbacks, urlPromise, 'ndt7-download-worker.js', 'download');
+          config, callbacks, urlPromise, workerfile, 'download');
     }
 
     /**
@@ -229,8 +238,9 @@
         measurement: cb('uploadMeasurement', userCallbacks),
         complete: cb('uploadComplete', userCallbacks),
       };
+      const workerfile = config.uploadworkerfile || 'ndt7-upload-worker.js';
       const rv = await runNDT7Worker(
-          config, callbacks, urlPromise, 'ndt7-upload-worker.js', 'upload');
+          config, callbacks, urlPromise, workerfile, 'upload');
       return rv << 4;
     }
 

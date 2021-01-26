@@ -7,11 +7,7 @@ if (typeof WebSocket === 'undefined') {
 
 // WebWorker that runs the ndt7 upload test
 const workerMain = function(ev) {
-  // TODO: Figure out the right place to choose wss vs ws
-  // let url = new URL(config.baseURL)
-  // url.protocol = (url.protocol === "https:") ? "wss:" : "ws:"
-  // url.pathname = "/ndt/v7/upload"
-  const url = ev.data['ws:///ndt/v7/upload'];
+  const url = ev.data['///ndt/v7/upload'];
   const sock = new WebSocket(url, 'net.measurementlab.ndt.v7');
   let now = () => new Date().getTime();
   if (typeof performance !== 'undefined' &&
@@ -88,18 +84,21 @@ const uploadTest = function(sock, postMessage, now) {
     const nextSizeIncrement =
         (data.length >= maxMessageSize) ? Infinity : 16 * data.length;
     if (total >= nextSizeIncrement) {
-      // TODO: fill this message. Filling the message is not a concern when
-      // we're using secure WebSockets.
+      // Optional todo: fill this message with randomness.
       data = new Uint8Array(data.length * 2);
     }
 
     const clientMeasurementInterval = 250; // ms
     const loopEndTime = Math.min(previous + clientMeasurementInterval, end);
-
     const desiredBuffer = 8 * data.length;
+
     // While we would still like to buffer more messages, and we haven't been
     // running for too long, and we don't need to resize the message... keep
     // sending.
+    //
+    // The buffering bound prevents us from wasting local memory, the time bound
+    // prevents us from stalling the UI event loop, and the sizeIncrement bound
+    // allows us to dynamically respond to fast connections.
     while (sock.bufferedAmount < desiredBuffer &&
            t < loopEndTime &&
            total < nextSizeIncrement
@@ -142,11 +141,13 @@ const uploadTest = function(sock, postMessage, now) {
 
     postMessage({
       MsgType: 'start',
-      StartTime: start / 1000, // seconds since epoch
-      ExpectedEndTime: end / 1000, // seconds since epoch
+      Data: {
+        StartTime: start / 1000, // seconds since epoch
+        ExpectedEndTime: end / 1000, // seconds since epoch
+      },
     });
 
-    // Start the loop.
+    // Start the upload loop.
     uploader(data, start, end, start, 0);
   };
 };

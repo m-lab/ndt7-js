@@ -8,11 +8,7 @@ if (typeof WebSocket === 'undefined') {
 // workerMain is the WebWorker function that runs the ndt7 download test.
 const workerMain = function(ev) {
   'use strict';
-  // TODO figure out where to put the secure/insecure choice
-  // let url = new URL(ev.data.href)
-  // url.protocol = (url.protocol === 'https:') ? 'wss:' : 'ws:'
-  // url.pathname = '/ndt/v7/download'
-  const url = ev.data['ws:///ndt/v7/download'];
+  const url = ev.data['///ndt/v7/download'];
   const sock = new WebSocket(url, 'net.measurementlab.ndt.v7');
   let now = () => new Date().getTime();
   if (typeof performance !== 'undefined' &&
@@ -53,6 +49,12 @@ const downloadTest = function(sock, postMessage, now) {
     start = now();
     previous = start;
     total = 0;
+    postMessage({
+      MsgType: 'start',
+      Data: {
+        ClientStartTime: start,
+      },
+    });
   };
 
   sock.onmessage = function(ev) {
@@ -71,7 +73,7 @@ const downloadTest = function(sock, postMessage, now) {
           //  (bytes) * (bits / byte) * (megabits / bit) = Megabits
           //  (Megabits) * (1/milliseconds) * (milliseconds / second) = Mbps
           // Collect the conversion constants, we find it is 8*1000/1000000
-          // Factor out like terms and we get: 8*1000/1000000 = .008
+          // When we simplify we get: 8*1000/1000000 = .008
           MeanClientMbps: (total / (t - start)) * 0.008,
         },
         Source: 'client',
