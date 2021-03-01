@@ -99,8 +99,8 @@
       const choice = js.results[Math.floor(Math.random() * js.results.length)];
       callbacks.serverChosen(choice);
       return {
-        '///ndt/v7/download': choice.urls[protocol + '://' + config.server + '/ndt/v7/download'],
-        '///ndt/v7/upload': choice.urls[protocol + '://' + config.server + '/ndt/v7/upload'],
+        '///ndt/v7/download': choice.urls[protocol + ':///ndt/v7/download'],
+        '///ndt/v7/upload': choice.urls[protocol + ':///ndt/v7/upload'],
       };
     }
 
