@@ -139,13 +139,17 @@
       // non-zero for failure.
       const workerPromise = new Promise((resolve) => {
         worker.resolve = function(returnCode) {
+          callbacks.complete({
+            LastClientMeasurement: clientMeasurement,
+            LastServerMeasurement: serverMeasurement,
+          });
           worker.terminate();
           resolve(returnCode);
         };
       });
 
-      // If the worker takes 20 seconds, kill it and return an error code.
-      setTimeout(() => worker.resolve(2), 20000);
+      // If the worker takes 10 seconds, kill it and return an error code.
+      setTimeout(() => worker.resolve(2), 10000);
 
       // This is how the worker communicates back to the main thread of
       // execution.  The MsgTpe of `ev` determines which callback the message
@@ -175,10 +179,6 @@
           }
         } else if (ev.data.MsgType == 'complete') {
           worker.resolve(0);
-          callbacks.complete({
-            LastClientMeasurement: clientMeasurement,
-            LastServerMeasurement: serverMeasurement,
-          });
         }
       };
 
