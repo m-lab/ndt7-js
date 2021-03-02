@@ -4,7 +4,7 @@
 
 // People who have this installed as a module (pretty much everyone who is
 // reading this) should change this line to:
-// const ndt7 = require('ndt7');
+// const ndt7 = require('@m-lab/ndt7');
 const ndt7 = require('../src/ndt7.js');
 
 ndt7.test(
