@@ -54,9 +54,9 @@ declare module '@m-lab/ndt7' {
         downloadComplete?: (data: TestCompleteData) => void;
     }
 
-    interface MeasurementData<TData> {
+    interface MeasurementData {
         Source: string;
-        Data: TData;
+        Data: ClientData | ServerData;
     }
 
     interface ClientData {
