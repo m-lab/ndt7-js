@@ -15,7 +15,7 @@
   // If this is running as a node module then WebSocket, fetch, and Worker
   // may all need to be defined.  In the browser they should already exist.
   if (typeof WebSocket === 'undefined') {
-    global.WebSocket = require('isomorphic-ws');
+    global.WebSocket = require('ws');
   }
   if (typeof fetch === 'undefined') {
     global.fetch = require('node-fetch');
