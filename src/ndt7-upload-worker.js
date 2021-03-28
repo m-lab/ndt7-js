@@ -2,7 +2,7 @@
 
 // Node doesn't have WebSocket defined, so it needs this library.
 if (typeof WebSocket === 'undefined') {
-  global.WebSocket = require('isomorphic-ws');
+  global.WebSocket = require('ws');
 }
 
 // WebWorker that runs the ndt7 upload test
