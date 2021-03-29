@@ -124,12 +124,11 @@
       let clientMeasurement;
       let serverMeasurement;
 
-      // Sometimes things like __dirname will exist even in browser environments,
+      // Sometimes things like __dirname will exist even in browser environments
       // instead check for well known node.js only environment markers
-      if (typeof process !== 'undefined'
-              && process.versions != null
-              && process.versions.node != null)
-      {
+      if (typeof process !== 'undefined' &&
+                 process.versions != null &&
+                 process.versions.node != null) {
         filename = __dirname + '/' + filename;
       }
 
