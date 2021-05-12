@@ -9,10 +9,12 @@ if (typeof WebSocket === 'undefined') {
 const workerMain = function(ev) {
   const url = ev.data['///ndt/v7/upload'];
   const sock = new WebSocket(url, 'net.measurementlab.ndt.v7');
-  let now = () => new Date().getTime();
+  let now;
   if (typeof performance !== 'undefined' &&
-      typeof performance.now !== 'undefined') {
+      typeof performance.now === 'function') {
     now = () => performance.now();
+  } else {
+    now = () => Date.now();
   }
   uploadTest(sock, postMessage, now);
 };

@@ -10,10 +10,12 @@ const workerMain = function(ev) {
   'use strict';
   const url = ev.data['///ndt/v7/download'];
   const sock = new WebSocket(url, 'net.measurementlab.ndt.v7');
-  let now = () => new Date().getTime();
+  let now;
   if (typeof performance !== 'undefined' &&
-      typeof performance.now !== 'undefined') {
+      typeof performance.now === 'function') {
     now = () => performance.now();
+  } else {
+    now = () => Date.now();
   }
   downloadTest(sock, postMessage, now);
 };
