@@ -81,37 +81,19 @@ const uploadTest = function(sock, postMessage, now) {
     }
 
     const maxMessageSize = 8388608; /* = (1<<23) = 8MB */
-    // const nextSizeIncrement =
-    //     (data.length >= maxMessageSize) ? Infinity : 16 * data.length;
-    // if (total >= nextSizeIncrement) {
-    //   // Optional todo: fill this message with randomness.
-    //   data = new Uint8Array(data.length * 2);
-    // }
-
     const clientMeasurementInterval = 250; // ms
-    const loopEndTime = Math.min(previous + clientMeasurementInterval, end);
 
-    // Keep the next 6 messages in the buffer.
-    // 6 * 8MB = 48MB is the maximum buffer size, which should be
-    // enough to work in any browser.
-    let desiredBuffer = 6 * data.length;
+    // Message size is doubled every 16 messages, up to maxMessageSize.
+    if (data.length < maxMessageSize && data.length < (total - sock.bufferedAmount) / 16) {
+      data = new Uint8Array(data.length * 2);
+    }
 
-    // While we would still like to buffer more messages, and we haven't been
-    // running for too long... keep sending.
-    //
-    // The buffering bound prevents us from wasting local memory and the time
-    // bound prevents us from stalling the JS event loop.
-    while (sock.bufferedAmount < desiredBuffer &&
-           t < loopEndTime) {
-      // The message size is doubled every 16 messages sent. This allows to
-      // adapt dinamically to fast connections.
-      if (data.length < maxMessageSize && data.length < (total - sock.bufferedAmount) / 16) {
-        data = new Uint8Array(data.length * 2);
-        desiredBuffer = 6 * data.length;
-      }
+    // We keep 7 messages in the send buffer, so there is always some more
+    // data to send. The maximum buffer size is 8 * 8MB - 1 byte ~= 63M.
+    const desiredBuffer =  7 * data.length;
+    if (sock.bufferedAmount < desiredBuffer) {
       sock.send(data);
-      t = now();
-      total += data.length;
+      total += data.length
     }
 
     if (t >= previous + clientMeasurementInterval) {
