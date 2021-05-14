@@ -57,10 +57,8 @@ const uploadTest = function(sock, postMessage, now) {
    * is used as a speed test, we don't know before the test which strategy we
    * will be using, because we don't know the speed before we test it.
    * Therefore, we use a strategy where we grow the message exponentially over
-   * time and maintain the invariant that the message size is always either 8k
-   * or less than 1/8 of the total number of bytes we have enqueued. In an
-   * effort to be kind to the memory allocator, we always double the message
-   * size instead of growing it by e.g. 1.3x.
+   * time. In an effort to be kind to the memory allocator, we always double
+   * the message size instead of growing it by e.g. 1.3x.
    *
    * @param {*} data
    * @param {*} start
@@ -83,9 +81,11 @@ const uploadTest = function(sock, postMessage, now) {
     const maxMessageSize = 8388608; /* = (1<<23) = 8MB */
     const clientMeasurementInterval = 250; // ms
 
-    // Message size is doubled every 16 messages, up to maxMessageSize.
-    if (data.length < maxMessageSize &&
-      data.length < (total - sock.bufferedAmount) / 16) {
+    // Message size is doubled after the first 16 messages, and subsequently
+    // every 8, up to maxMessageSize.
+    const nextSizeIncrement =
+        (data.length >= maxMessageSize) ? Infinity : 16 * data.length;
+    if ((total - sock.bufferedAmount) >= nextSizeIncrement) {
       data = new Uint8Array(data.length * 2);
     }
 
