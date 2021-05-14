@@ -23,6 +23,9 @@
   ],
   "author": "",
   "license": "Apache-2.0",
+  "engines": {
+    "node": ">=10.0.0"
+  },
   "devDependencies": {
     "chai": "^4.2.0",
     "coveralls": "^3.1.0",
