@@ -90,7 +90,7 @@ const uploadTest = function(sock, postMessage, now) {
     }
 
     // We keep 7 messages in the send buffer, so there is always some more
-    // data to send. The maximum buffer size is 8 * 8MB - 1 byte ~= 63M.
+    // data to send. The maximum buffer size is 8 * 8MB - 1 byte ~= 64M.
     const desiredBuffer = 7 * data.length;
     if (sock.bufferedAmount < desiredBuffer) {
       sock.send(data);
