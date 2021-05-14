@@ -124,9 +124,11 @@
       let clientMeasurement;
       let serverMeasurement;
 
-      // __dirname only exists for node.js, but is required in that environment
-      // to ensure that the files for the Worker are found in the right place.
-      if (typeof __dirname !== 'undefined') {
+      // Sometimes things like __dirname will exist even in browser environments
+      // instead check for well known node.js only environment markers
+      if (typeof process !== 'undefined' &&
+                 process.versions != null &&
+                 process.versions.node != null) {
         filename = __dirname + '/' + filename;
       }
 
