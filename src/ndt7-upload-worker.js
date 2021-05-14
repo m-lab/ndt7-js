@@ -84,7 +84,7 @@ const uploadTest = function(sock, postMessage, now) {
     const clientMeasurementInterval = 250; // ms
 
     // Message size is doubled every 16 messages, up to maxMessageSize.
-    if (data.length < maxMessageSize && 
+    if (data.length < maxMessageSize &&
       data.length < (total - sock.bufferedAmount) / 16) {
       data = new Uint8Array(data.length * 2);
     }
