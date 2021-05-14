@@ -74,7 +74,7 @@ const uploadTest = function(sock, postMessage, now) {
       // observed this behaviour with pre-Chromium Edge.
       return;
     }
-    let t = now();
+    const t = now();
     if (t >= end) {
       sock.close();
       return;
@@ -84,16 +84,17 @@ const uploadTest = function(sock, postMessage, now) {
     const clientMeasurementInterval = 250; // ms
 
     // Message size is doubled every 16 messages, up to maxMessageSize.
-    if (data.length < maxMessageSize && data.length < (total - sock.bufferedAmount) / 16) {
+    if (data.length < maxMessageSize && 
+      data.length < (total - sock.bufferedAmount) / 16) {
       data = new Uint8Array(data.length * 2);
     }
 
     // We keep 7 messages in the send buffer, so there is always some more
     // data to send. The maximum buffer size is 8 * 8MB - 1 byte ~= 63M.
-    const desiredBuffer =  7 * data.length;
+    const desiredBuffer = 7 * data.length;
     if (sock.bufferedAmount < desiredBuffer) {
       sock.send(data);
-      total += data.length
+      total += data.length;
     }
 
     if (t >= previous + clientMeasurementInterval) {
