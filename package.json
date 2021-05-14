@@ -37,7 +37,6 @@
     "src/**/*"
   ],
   "dependencies": {
-    "fetch": "^1.1.0",
     "isomorphic-ws": "^4.0.1",
     "node-fetch": "^2.6.0",
     "workerjs": "^0.1.1",
