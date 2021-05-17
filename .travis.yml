@@ -1,7 +1,7 @@
 language: node_js
 
 node_js:
-- 14
+- 12
 
 script:
 # Coverage runs the tests, so this implies `npm test`
