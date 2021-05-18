@@ -23,13 +23,16 @@
   ],
   "author": "",
   "license": "Apache-2.0",
+  "engines": {
+    "node": ">=12"
+  },
   "devDependencies": {
     "chai": "^4.2.0",
     "coveralls": "^3.1.0",
     "eslint": "^7.2.0",
     "eslint-config-google": "^0.14.0",
     "jsdoc-to-markdown": "^6.0.1",
-    "minify": "^5.1.1",
+    "minify": "^6.0.1",
     "mocha": "^7.2.0",
     "nyc": "^15.1.0"
   },
