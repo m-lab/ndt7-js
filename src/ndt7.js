@@ -98,12 +98,12 @@
       // the client should quickly try the next server.
       //
       // Choose the first result sent by the load balancer. This ensures that
-      // in cases where we have a single pod in a country, that pod is used to
+      // in cases where we have a single pod in a metro, that pod is used to
       // run the measurement. When there are multiple pods in the same metro,
       // they are randomized by the load balancer already.
       const choice = js.results[0];
       callbacks.serverChosen(choice);
-      
+
       return {
         '///ndt/v7/download': choice.urls[protocol + ':///ndt/v7/download'],
         '///ndt/v7/upload': choice.urls[protocol + ':///ndt/v7/upload'],
