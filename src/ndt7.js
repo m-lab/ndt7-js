@@ -149,7 +149,6 @@
       // non-zero for failure.
       const workerPromise = new Promise((resolve) => {
         worker.resolve = function(returnCode) {
-          console.log('Worker terminated with code', returnCode);
           if (returnCode == 0) {
             callbacks.complete({
               LastClientMeasurement: clientMeasurement,
