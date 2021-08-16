@@ -87,7 +87,9 @@
       // is specified, use the locate service from Measurement Lab.
       const lbURL = (config && ('loadbalancer' in config)) ? config.loadbalancer : new URL('https://locate.measurementlab.net/v2/nearest/ndt/ndt7');
       callbacks.serverDiscovery({loadbalancer: lbURL});
-      const response = await fetch(lbURL);
+      const response = await fetch(lbURL).catch(err => {
+        throw new Error(err);
+      });
       const js = await response.json();
       if (! ('results' in js) ) {
         callbacks.error(`Could not understand response from ${lbURL}: ${js}`);
@@ -147,10 +149,13 @@
       // non-zero for failure.
       const workerPromise = new Promise((resolve) => {
         worker.resolve = function(returnCode) {
-          callbacks.complete({
-            LastClientMeasurement: clientMeasurement,
-            LastServerMeasurement: serverMeasurement,
-          });
+          console.log("Worker terminated with code", returnCode);
+          if (returnCode == 0) {
+            callbacks.complete({
+              LastClientMeasurement: clientMeasurement,
+              LastServerMeasurement: serverMeasurement,
+            });
+          }
           worker.terminate();
           resolve(returnCode);
         };
@@ -160,14 +165,15 @@
       // Most clients take longer than 10 seconds to complete the upload and
       // finish sending the buffer's content, sometimes hitting the socket's
       // timeout of 15 seconds. This makes sure uploads terminate on time.
-      setTimeout(() => worker.resolve(0), 10000);
+      const workerTimeout = setTimeout(() => worker.resolve(0), 10000);
 
       // This is how the worker communicates back to the main thread of
       // execution.  The MsgTpe of `ev` determines which callback the message
       // gets forwarded to.
       worker.onmessage = function(ev) {
         if (!ev.data || !ev.data.MsgType || ev.data.MsgType === 'error') {
-          worker.resolve(3);
+          clearTimeout(workerTimeout);
+          worker.resolve(1);
           const msg = (!ev.data) ? `${testType} error` : ev.data.Error;
           callbacks.error(msg);
         } else if (ev.data.MsgType === 'start') {
@@ -189,13 +195,18 @@
             });
           }
         } else if (ev.data.MsgType == 'complete') {
+          clearTimeout(workerTimeout);
           worker.resolve(0);
         }
       };
 
       // We can't start the worker until we know the right server, so we wait
       // here to find that out.
-      const urls = await urlPromise;
+      const urls = await urlPromise.catch(err => {
+        clearTimeout(workerTimeout);
+        worker.resolve(2);
+        throw new Error(err);
+      });
 
       // Start the worker.
       worker.postMessage(urls);

@@ -28,6 +28,13 @@ const uploadTest = function(sock, postMessage, now) {
     }
   };
 
+  sock.onerror = function(ev) {
+    postMessage({
+      MsgType: 'error',
+      Error: ev,
+    });
+  };
+
   sock.onmessage = function(ev) {
     if (typeof ev.data !== 'undefined') {
       postMessage({
