@@ -39,7 +39,7 @@ ndt7.test(
     Mean client goodput: ${clientGoodput} Mbps`);
       },
       error: function(err) {
-        console.log("Error while running the test:", err.message);
+        console.log('Error while running the test:', err.message);
       },
     },
 ).then((exitcode) => {
