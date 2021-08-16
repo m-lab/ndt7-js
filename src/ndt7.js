@@ -87,7 +87,7 @@
       // is specified, use the locate service from Measurement Lab.
       const lbURL = (config && ('loadbalancer' in config)) ? config.loadbalancer : new URL('https://locate.measurementlab.net/v2/nearest/ndt/ndt7');
       callbacks.serverDiscovery({loadbalancer: lbURL});
-      const response = await fetch(lbURL).catch(err => {
+      const response = await fetch(lbURL).catch((err) => {
         throw new Error(err);
       });
       const js = await response.json();
@@ -149,7 +149,7 @@
       // non-zero for failure.
       const workerPromise = new Promise((resolve) => {
         worker.resolve = function(returnCode) {
-          console.log("Worker terminated with code", returnCode);
+          console.log('Worker terminated with code', returnCode);
           if (returnCode == 0) {
             callbacks.complete({
               LastClientMeasurement: clientMeasurement,
@@ -202,7 +202,7 @@
 
       // We can't start the worker until we know the right server, so we wait
       // here to find that out.
-      const urls = await urlPromise.catch(err => {
+      const urls = await urlPromise.catch((err) => {
         clearTimeout(workerTimeout);
         worker.resolve(2);
         throw new Error(err);
