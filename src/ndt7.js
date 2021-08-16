@@ -203,9 +203,10 @@
       // We can't start the worker until we know the right server, so we wait
       // here to find that out.
       const urls = await urlPromise.catch((err) => {
+        // Clear timer, terminate the worker and rethrow the error.
         clearTimeout(workerTimeout);
         worker.resolve(2);
-        throw new Error(err);
+        throw err;
       });
 
       // Start the worker.
@@ -239,7 +240,10 @@
       };
       const workerfile = config.downloadworkerfile || 'ndt7-download-worker.js';
       return await runNDT7Worker(
-          config, callbacks, urlPromise, workerfile, 'download');
+          config, callbacks, urlPromise, workerfile, 'download')
+          .catch((err) => {
+            callbacks.error(err);
+          });
     }
 
     /**
@@ -262,7 +266,10 @@
       };
       const workerfile = config.uploadworkerfile || 'ndt7-upload-worker.js';
       const rv = await runNDT7Worker(
-          config, callbacks, urlPromise, workerfile, 'upload');
+          config, callbacks, urlPromise, workerfile, 'upload')
+          .catch((err) => {
+            callbacks.error(err);
+          });
       return rv << 4;
     }
 
