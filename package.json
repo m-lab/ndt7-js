@@ -4,7 +4,7 @@
   "description": "NDT7 client for measuring networks",
   "main": "src/ndt7.js",
   "scripts": {
-    "test": "mocha src/test && testcafe chrome:headless,firefox:headless src/test/e2e/test.js --app \"node src/test/e2e/server.js\"",
+    "test": "mocha src/test && cp src/*.min.js src/test/e2e/ && testcafe chrome:headless,firefox:headless src/test/e2e/test.js --app \"node src/test/e2e/server.js\"",
     "coverage": "nyc --reporter=lcovonly  --file=coverage.cov --reporter=text npm run test",
     "lint": "eslint --ext .js src/",
     "document": "jsdoc2md --files=src/ndt7.js --template README.template.md > README.md",
