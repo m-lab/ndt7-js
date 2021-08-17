@@ -23,6 +23,6 @@ test('Basic functionality tests', async t => {
     await t.expect(downloadStatus.innerText).eql('complete');
     await t.expect(download.innerText).notEql('');
     await t.expect(uploadStatus.innerText).eql('measuring');
-    await t.expect(upload.innerHtml).notEql('');
+    await t.expect(upload.innerText).notEql('');
 
 });
