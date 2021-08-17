@@ -1,6 +1,6 @@
 import { Selector } from 'testcafe';
 
-fixture `Getting Started`
+fixture `Test ndt7-js client`
     .page `http://localhost:5000`;
 
 const server = Selector('#server');
