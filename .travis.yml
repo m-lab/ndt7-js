@@ -3,6 +3,14 @@ language: node_js
 node_js:
 - 12
 
+# Required by TestCafe.
+before_install:
+   - stty cols 80
+
+addons:
+   firefox: latest
+   chrome: stable
+
 script:
 # Coverage runs the tests, so this implies `npm test`
 # TODO: upload coverage to coveralls.io

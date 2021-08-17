@@ -4,7 +4,7 @@
   "description": "NDT7 client for measuring networks",
   "main": "src/ndt7.js",
   "scripts": {
-    "test": "mocha src/test",
+    "test": "mocha src/test && testcafe chrome:headless,firefox:headless src/test/e2e/test.js --app \"src/test/e2e/server.js\"",
     "coverage": "nyc --reporter=lcovonly  --file=coverage.cov --reporter=text npm run test",
     "lint": "eslint --ext .js src/",
     "document": "jsdoc2md --files=src/ndt7.js --template README.template.md > README.md",
@@ -28,6 +28,7 @@
   },
   "devDependencies": {
     "chai": "^4.2.0",
+    "testcafe": "^1.15.2",
     "coveralls": "^3.1.0",
     "eslint": "^7.2.0",
     "eslint-config-google": "^0.14.0",
@@ -40,6 +41,7 @@
     "src/**/*"
   ],
   "dependencies": {
+    "express": "^4.17.1",
     "isomorphic-ws": "^4.0.1",
     "node-fetch": "^2.6.0",
     "workerjs": "^0.1.1",
