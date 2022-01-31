@@ -1,10 +1,10 @@
 {
   "name": "@m-lab/ndt7",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "NDT7 client for measuring networks",
   "main": "src/ndt7.js",
   "scripts": {
-    "test": "mocha src/test",
+    "test": "mocha src/test && cp src/*.min.js src/test/e2e/ && testcafe chrome:headless,firefox:headless src/test/e2e/test.js --app \"node src/test/e2e/server.js\"",
     "coverage": "nyc --reporter=lcovonly  --file=coverage.cov --reporter=text npm run test",
     "lint": "eslint --ext .js src/",
     "document": "jsdoc2md --files=src/ndt7.js --template README.template.md > README.md",
@@ -23,21 +23,25 @@
   ],
   "author": "",
   "license": "Apache-2.0",
+  "engines": {
+    "node": ">=12"
+  },
   "devDependencies": {
     "chai": "^4.2.0",
     "coveralls": "^3.1.0",
     "eslint": "^7.2.0",
     "eslint-config-google": "^0.14.0",
     "jsdoc-to-markdown": "^6.0.1",
-    "minify": "^5.1.1",
+    "minify": "^6.0.1",
     "mocha": "^7.2.0",
-    "nyc": "^15.1.0"
+    "nyc": "^15.1.0",
+    "express": "^4.17.1",
+    "testcafe": "^1.15.2"
   },
   "files": [
     "src/**/*"
   ],
   "dependencies": {
-    "fetch": "^1.1.0",
     "isomorphic-ws": "^4.0.1",
     "node-fetch": "^2.6.0",
     "workerjs": "^0.1.1",
