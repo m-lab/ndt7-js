@@ -87,7 +87,9 @@
       // is specified, use the locate service from Measurement Lab.
       const lbURL = (config && ('loadbalancer' in config)) ? config.loadbalancer : new URL('https://locate.measurementlab.net/v2/nearest/ndt/ndt7');
       callbacks.serverDiscovery({loadbalancer: lbURL});
-      const response = await fetch(lbURL);
+      const response = await fetch(lbURL).catch((err) => {
+        throw new Error(err);
+      });
       const js = await response.json();
       if (! ('results' in js) ) {
         callbacks.error(`Could not understand response from ${lbURL}: ${js}`);
@@ -96,8 +98,14 @@
 
       // TODO: do not discard unused results. If the first server is unavailable
       // the client should quickly try the next server.
-      const choice = js.results[Math.floor(Math.random() * js.results.length)];
+      //
+      // Choose the first result sent by the load balancer. This ensures that
+      // in cases where we have a single pod in a metro, that pod is used to
+      // run the measurement. When there are multiple pods in the same metro,
+      // they are randomized by the load balancer already.
+      const choice = js.results[0];
       callbacks.serverChosen(choice);
+
       return {
         '///ndt/v7/download': choice.urls[protocol + ':///ndt/v7/download'],
         '///ndt/v7/upload': choice.urls[protocol + ':///ndt/v7/upload'],
@@ -124,9 +132,11 @@
       let clientMeasurement;
       let serverMeasurement;
 
-      // __dirname only exists for node.js, but is required in that environment
-      // to ensure that the files for the Worker are found in the right place.
-      if (typeof __dirname !== 'undefined') {
+      // Sometimes things like __dirname will exist even in browser environments
+      // instead check for well known node.js only environment markers
+      if (typeof process !== 'undefined' &&
+                 process.versions != null &&
+                 process.versions.node != null) {
         filename = __dirname + '/' + filename;
       }
 
@@ -139,24 +149,30 @@
       // non-zero for failure.
       const workerPromise = new Promise((resolve) => {
         worker.resolve = function(returnCode) {
-          callbacks.complete({
-            LastClientMeasurement: clientMeasurement,
-            LastServerMeasurement: serverMeasurement,
-          });
+          if (returnCode == 0) {
+            callbacks.complete({
+              LastClientMeasurement: clientMeasurement,
+              LastServerMeasurement: serverMeasurement,
+            });
+          }
           worker.terminate();
           resolve(returnCode);
         };
       });
 
       // If the worker takes 10 seconds, kill it and return an error code.
-      setTimeout(() => worker.resolve(2), 10000);
+      // Most clients take longer than 10 seconds to complete the upload and
+      // finish sending the buffer's content, sometimes hitting the socket's
+      // timeout of 15 seconds. This makes sure uploads terminate on time.
+      const workerTimeout = setTimeout(() => worker.resolve(0), 10000);
 
       // This is how the worker communicates back to the main thread of
       // execution.  The MsgTpe of `ev` determines which callback the message
       // gets forwarded to.
       worker.onmessage = function(ev) {
         if (!ev.data || !ev.data.MsgType || ev.data.MsgType === 'error') {
-          worker.resolve(3);
+          clearTimeout(workerTimeout);
+          worker.resolve(1);
           const msg = (!ev.data) ? `${testType} error` : ev.data.Error;
           callbacks.error(msg);
         } else if (ev.data.MsgType === 'start') {
@@ -178,13 +194,19 @@
             });
           }
         } else if (ev.data.MsgType == 'complete') {
+          clearTimeout(workerTimeout);
           worker.resolve(0);
         }
       };
 
       // We can't start the worker until we know the right server, so we wait
       // here to find that out.
-      const urls = await urlPromise;
+      const urls = await urlPromise.catch((err) => {
+        // Clear timer, terminate the worker and rethrow the error.
+        clearTimeout(workerTimeout);
+        worker.resolve(2);
+        throw err;
+      });
 
       // Start the worker.
       worker.postMessage(urls);
@@ -217,7 +239,10 @@
       };
       const workerfile = config.downloadworkerfile || 'ndt7-download-worker.js';
       return await runNDT7Worker(
-          config, callbacks, urlPromise, workerfile, 'download');
+          config, callbacks, urlPromise, workerfile, 'download')
+          .catch((err) => {
+            callbacks.error(err);
+          });
     }
 
     /**
@@ -240,7 +265,10 @@
       };
       const workerfile = config.uploadworkerfile || 'ndt7-upload-worker.js';
       const rv = await runNDT7Worker(
-          config, callbacks, urlPromise, workerfile, 'upload');
+          config, callbacks, urlPromise, workerfile, 'upload')
+          .catch((err) => {
+            callbacks.error(err);
+          });
       return rv << 4;
     }
 
