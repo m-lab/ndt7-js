@@ -21,7 +21,7 @@
     global.fetch = require('node-fetch');
   }
   if (typeof Worker === 'undefined') {
-    global.Worker = require('workerjs');
+    global.Worker = require('worker_threads');
   }
 
   /**
