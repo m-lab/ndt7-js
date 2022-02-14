@@ -2,7 +2,7 @@
 
 // Node doesn't have WebSocket defined, so it needs this library.
 if (typeof WebSocket === 'undefined') {
-  global.WebSocket = require('isomorphic-ws');
+  global.WebSocket = require('ws');
 }
 
 // WebWorker that runs the ndt7 upload test
@@ -84,6 +84,8 @@ const uploadTest = function(sock, postMessage, now) {
     const t = now();
     if (t >= end) {
       sock.close();
+      // send one last measurement.
+      postClientMeasurement(total, sock.bufferedAmount, start);
       return;
     }
 
@@ -107,26 +109,41 @@ const uploadTest = function(sock, postMessage, now) {
     }
 
     if (t >= previous + clientMeasurementInterval) {
-      const numBytes = total - sock.bufferedAmount;
-      // ms / 1000 = seconds
-      const elapsedTime = (t - start) / 1000;
-      // bytes * bits/byte * megabits/bit * 1/seconds = Mbps
-      const meanMbps = numBytes * 8 / 1000000 / elapsedTime;
-      postMessage({
-        MsgType: 'measurement',
-        ClientData: {
-          ElapsedTime: elapsedTime,
-          NumBytes: numBytes,
-          MeanClientMbps: meanMbps,
-        },
-        Source: 'client',
-        Test: 'upload',
-      });
+      postClientMeasurement(total, sock.bufferedAmount, start);
       previous = t;
     }
 
     // Loop the uploader function in a way that respects the JS event handler.
     setTimeout(() => uploader(data, start, end, previous, total), 0);
+  }
+
+  /** Report measurement back to the main thread.
+   *
+   * Note: client-side measurement are not guaranteed to be accurate, because
+   * the browser (or the websocket library, in case this runs with nodejs)
+   * might report bufferedAmount incorrectly.
+   *
+   * @param {*} total
+   * @param {*} bufferedAmount
+   * @param {*} start
+   */
+  function postClientMeasurement(total, bufferedAmount, start) {
+    // bytes sent - bytes buffered = bytes actually sent
+    const numBytes = total - bufferedAmount;
+    // ms / 1000 = seconds
+    const elapsedTime = (now() - start) / 1000;
+    // bytes * bits/byte * megabits/bit * 1/seconds = Mbps
+    const meanMbps = numBytes * 8 / 1000000 / elapsedTime;
+    postMessage({
+      MsgType: 'measurement',
+      ClientData: {
+        ElapsedTime: elapsedTime,
+        NumBytes: numBytes,
+        MeanClientMbps: meanMbps,
+      },
+      Source: 'client',
+      Test: 'upload',
+    });
   }
 
   sock.onopen = function() {
