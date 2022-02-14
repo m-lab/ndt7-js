@@ -28,15 +28,14 @@ ndt7.test(
     Mean client goodput: ${clientGoodput} Mbps`);
       },
       uploadComplete: function(data) {
-        // TODO: used actual upload duration for rate calculation.
-        // bytes * (bits/byte() * (megabits/bit) * (1/seconds) = Mbps
-        const serverBw =
-            data.LastServerMeasurement.TCPInfo.BytesReceived * 8 / 1000000 / 10;
-        const clientGoodput = data.LastClientMeasurement.MeanClientMbps;
+        const bytesReceived = data.LastServerMeasurement.TCPInfo.BytesReceived;
+        const elapsed = data.LastServerMeasurement.TCPInfo.ElapsedTime;
+        // bytes * bits/byte / microseconds = Mbps
+        const throughput =
+        bytesReceived * 8 / elapsed;
         console.log(
-            `Upload test is complete:
-    Mean server throughput: ${serverBw} Mbps
-    Mean client goodput: ${clientGoodput} Mbps`);
+            `Upload test completed in ${(elapsed / 1000000).toFixed(2)}s
+    Mean server throughput: ${throughput} Mbps`);
       },
       error: function(err) {
         console.log('Error while running the test:', err.message);

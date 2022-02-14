@@ -15,7 +15,7 @@
   // If this is running as a node module then WebSocket, fetch, and Worker
   // may all need to be defined.  In the browser they should already exist.
   if (typeof WebSocket === 'undefined') {
-    global.WebSocket = require('isomorphic-ws');
+    global.WebSocket = require('ws');
   }
   if (typeof fetch === 'undefined') {
     global.fetch = require('node-fetch');
@@ -160,11 +160,12 @@
         };
       });
 
-      // If the worker takes 10 seconds, kill it and return an error code.
+      // If the worker takes 12 seconds, kill it and return an error code.
       // Most clients take longer than 10 seconds to complete the upload and
       // finish sending the buffer's content, sometimes hitting the socket's
-      // timeout of 15 seconds. This makes sure uploads terminate on time.
-      const workerTimeout = setTimeout(() => worker.resolve(0), 10000);
+      // timeout of 15 seconds. This makes sure uploads terminate on time and
+      // get a chance to send one last measurement after 10s.
+      const workerTimeout = setTimeout(() => worker.resolve(0), 12000);
 
       // This is how the worker communicates back to the main thread of
       // execution.  The MsgTpe of `ev` determines which callback the message
