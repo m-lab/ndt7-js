@@ -30,7 +30,7 @@ ndt7.test(
       uploadComplete: function(data) {
         const bytesReceived = data.LastServerMeasurement.TCPInfo.BytesReceived;
         const elapsed = data.LastServerMeasurement.TCPInfo.ElapsedTime;
-        // bytes * bits/byte / nanoseconds = Mbps
+        // bytes * bits/byte / microseconds = Mbps
         const throughput =
         bytesReceived * 8 / elapsed;
         console.log(
