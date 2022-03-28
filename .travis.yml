@@ -5,15 +5,15 @@ node_js:
 
 # Required by TestCafe.
 before_install:
-   - stty cols 80
+- stty cols 80
 
 addons:
-   firefox: latest
-   chrome: stable
-   browserstack:
-      username: "robertodauria_0EiVvQ"
-      access_key:
-         secure: "E8j9zprmgwlf1hsxwhF5utQq4Jss1QkDgTAe9/lzsZhVgjKfZUaSruiLmxFcpBXor5vE1xqhgPQaQ1PCpxdEFQ+BaVyZv8gSwfDr3giPYI5q9DcsrU+y/+FlOa/0kSB4rUn/0NiTsE7K+MbU90QDd9uP3Z2khShswwgsyWD6VHIzt/eVFsAzZ6e+C+MUdaOx7SFPK/Ve7giqiJyi5Suhz2hv0Ssy41VUlx5A/+xah5F7JDa4Ta3q6IqScyHibW2Jx8VDGN+c7S/5460f7XBgdln0DeWouCZASVBKI0YrinDTelWMf/XdaXnByqqdpncE/ENc18MgB+HA4YRPL+Z9QIlvDupt8kwVJqRPfCJ86ntxQcBze8jJ5gQS3ghjxxgE2pdP4/IdXkHDOhQOGpDbteZ2QeqIxb0djRxj/V/Es1/PNCInXFiguARme4Np7oFkTM6I4HZ5eTqXHyAaUjm8R3yBd2Sj7KmJIhVpcLUjrOciePorpnrPxbbxP4fdz5iGwWiDWamouHmrJWXzhGdqIZSKxiLV/X6Wf0ZVtkc8E1zXO4f4nalNrZBxpKQwe9DDe3xsxNhurQqRj8XRu9ngtBFTCChYdwj0fP/Sk8gp+p6E+HLvr2yR9JQwgsANZ+pG2K9UkMQKaSiZsinWxZtfiBF0qADx8Qh6riFILurUDJI="
+  firefox: latest
+  chrome: stable
+  browserstack:
+    username: "robertodauria_0EiVvQ"
+    access_key:
+      secure: "E8j9zprmgwlf1hsxwhF5utQq4Jss1QkDgTAe9/lzsZhVgjKfZUaSruiLmxFcpBXor5vE1xqhgPQaQ1PCpxdEFQ+BaVyZv8gSwfDr3giPYI5q9DcsrU+y/+FlOa/0kSB4rUn/0NiTsE7K+MbU90QDd9uP3Z2khShswwgsyWD6VHIzt/eVFsAzZ6e+C+MUdaOx7SFPK/Ve7giqiJyi5Suhz2hv0Ssy41VUlx5A/+xah5F7JDa4Ta3q6IqScyHibW2Jx8VDGN+c7S/5460f7XBgdln0DeWouCZASVBKI0YrinDTelWMf/XdaXnByqqdpncE/ENc18MgB+HA4YRPL+Z9QIlvDupt8kwVJqRPfCJ86ntxQcBze8jJ5gQS3ghjxxgE2pdP4/IdXkHDOhQOGpDbteZ2QeqIxb0djRxj/V/Es1/PNCInXFiguARme4Np7oFkTM6I4HZ5eTqXHyAaUjm8R3yBd2Sj7KmJIhVpcLUjrOciePorpnrPxbbxP4fdz5iGwWiDWamouHmrJWXzhGdqIZSKxiLV/X6Wf0ZVtkc8E1zXO4f4nalNrZBxpKQwe9DDe3xsxNhurQqRj8XRu9ngtBFTCChYdwj0fP/Sk8gp+p6E+HLvr2yR9JQwgsANZ+pG2K9UkMQKaSiZsinWxZtfiBF0qADx8Qh6riFILurUDJI="
 
 script:
 # Coverage runs the tests, so this implies `npm test`
