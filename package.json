@@ -9,7 +9,7 @@
     "lint": "eslint --ext .js src/",
     "document": "jsdoc2md --files=src/ndt7.js --template README.template.md > README.md",
     "minify": "minify --js < src/ndt7.js | sed -e 's/load-worker.js/load-worker.min.js/g' > src/ndt7.min.js && minify --js < src/ndt7-download-worker.js > src/ndt7-download-worker.min.js && minify --js < src/ndt7-upload-worker.js > src/ndt7-upload-worker.min.js",
-    "browserstack": "cp src/*.min.js src/test/e2e/ && testcafe 'browserstack:chrome@79.0:Windows 10' src/test/test.js --app \"node src/test/e2e/server.js\""
+    "browserstack": "cp src/*.min.js src/test/e2e/ && testcafe 'browserstack:chrome@79.0:Windows 10' src/test/e2e/test.js --app \"node src/test/e2e/server.js\""
   },
   "repository": {
     "type": "git",
