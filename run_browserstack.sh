@@ -42,5 +42,5 @@ function run_tests() {
 }
 
 run_tests "${BROWSERS_WINDOWS[@]}"
-run_tests "${BROWSERS_MACOS_SAFARI[@]}"
+#run_tests "${BROWSERS_MACOS_SAFARI[@]}"
 run_tests "${BROWSERS_MACOS_OTHERS[@]}"
