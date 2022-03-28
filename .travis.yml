@@ -23,5 +23,6 @@ script:
 # generated correctly from the most recent sources.
 - npm run document && git diff --exit-code README.md
 - npm run minify && git diff --exit-code src/ndt7.min.js
+- npm run test
 
 # TODO Upload the code to npm after it is tagged.
