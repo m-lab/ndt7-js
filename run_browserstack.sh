@@ -14,11 +14,12 @@ BROWSERS_WINDOWS=(
 )
 
 BROWSERS_MACOS_SAFARI=(
+    # Note: Safari 15 support is broken on TestCafe.
     "browserstack:safari@15.3:OS X Monterey"
-    # "browserstack:safari@14.1:OS X Big Sur"
-    # "browserstack:safari@13.1:OS X Catalina"
-    # "browserstack:safari@12.1:OS X Mojave"
-    # "browserstack:safari@11.1:OS X High Sierra"
+    "browserstack:safari@14.1:OS X Big Sur"
+    "browserstack:safari@13.1:OS X Catalina"
+    "browserstack:safari@12.1:OS X Mojave"
+    "browserstack:safari@11.1:OS X High Sierra"
 )
 
 BROWSERS_MACOS_OTHERS=(
