@@ -41,4 +41,6 @@ function run_tests() {
     testcafe "$BROWSER_LIST" src/test/e2e/test.js --app "node src/test/e2e/server.js"
 }
 
+run_tests "${BROWSERS_WINDOWS[@]}"
 run_tests "${BROWSERS_MACOS_SAFARI[@]}"
+run_tests "${BROWSERS_MACOS_OTHERS[@]}"
