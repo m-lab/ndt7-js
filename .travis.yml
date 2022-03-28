@@ -23,6 +23,13 @@ script:
 # generated correctly from the most recent sources.
 - npm run document && git diff --exit-code README.md
 - npm run minify && git diff --exit-code src/ndt7.min.js
-- npm run test
 
+# Set up BrowserStackLocal so that BrowserStack can access the local server.
+- wget https://www.browserstack.com/browserstack-local/BrowserStackLocal-linux-x64.zip
+- unzip BrowserStackLocal-linux-x64.zip
+- export BROWSERSTACK_LOCAL_IDENTIFIER="TestCafe"
+# --parallel-runs is set to the maximum parallel runs allowed by our plan.
+- ./BrowserStackLocal --key $BROWSERSTACK_ACCESS_KEY --local-identifier $BROWSERSTACK_LOCAL_IDENTIFIER --daemon start --parallel-runs 5
+- npm run browserstack
+- ./BrowserStackLocal --key $BROWSERSTACK_ACCESS_KEY --local-identifier TestCafe --daemon stop
 # TODO Upload the code to npm after it is tagged.
