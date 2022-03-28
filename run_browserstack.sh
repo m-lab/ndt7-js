@@ -31,12 +31,13 @@ BROWSERS_MACOS_OTHERS=(
 
 function run_tests() {
     # Run TestCafe for each browser.
-    for browser in "${!BROWSERS_*[@]}"; do
-        echo "Running tests for $browser"
-        testcafe $browser src/test/e2e/test.js --app "node src/test/e2e/server.js"
+    browsers=("$@")
+    for ((i = 0; i < ${#browsers[@]}; i++)); do
+        echo "Running tests for ${browsers[$i]}"
+        testcafe "${browsers[$i]}" src/test/e2e/test.js --app "node src/test/e2e/server.js"
     done
 }
 
-# run_tests "${BROWSERS_WINDOWS[@]}"
+run_tests "${BROWSERS_WINDOWS[@]}"
 run_tests "${BROWSERS_MACOS_SAFARI[@]}"
-# run_tests "${BROWSERS_MACOS_OTHERS[@]}"
+run_tests "${BROWSERS_MACOS_OTHERS[@]}"
