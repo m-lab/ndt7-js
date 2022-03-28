@@ -10,6 +10,11 @@ before_install:
 addons:
    firefox: latest
    chrome: stable
+   browserstack:
+      username:
+         secure: "kERA+6NU6FfIwhm+Shnf2FWJzho0+XrNqikPRTde3UWtrJfp5UO8CKH8BirtHs3SY/AAOKxzhkzl5jtjaFLFNg/qX6p0Een4U0rqspF+0kPqfLkwvrKzvMNBoLCJyZ4G7ZKLLsAmFZKCl7TDAj9zCaLN1U/fk+MmiMvMauQT4yApU8x2OF3zEwK0AOTIgZGnfs8uvwcS6zyO5cUEWbaxoOKH+bO1dbX/L7DBtMB+xOgE37b+kgc4yXdwoj4wDRL7AnVDUmhTSXQ1bFSuynECfkDEbd8R1rhoxzwuhJKUcjVEzXYVNYu0jd8gbrWcQOq79wjWGDZHemmh2F/Vnx4l691Y1/EjmWK/1ajGTZGs8xdLtkLTnw+jG6QH4pwMbkXa82K9Vgc13+UdxsFizpT8GGmL8jHEf3V9bvbtzGw2NXIm3Ahv0uHhZfFFUtKlyn2pSXZD2p+vCry5+nQ+m7YPxwxxEvr1k8DgyqAMbYGpVFtDR9goakCkiIyqszwbFXDnLOIwhpTLYKOFaNvwnz/6AMMMwsFJtpwIsbG3oA6g83d8m8eMtMqn6m/L0Bt+Q/ys2fRxJ4i6PXjI+hwINrqxEn50hEEKwMpKnNtZqpPpcf/LaXE+rPHSXMtolGg9VPRv/ertvNzIap6KEk1f4BKfvOTC1dIpfkWvUWFtW5Opw7E="
+      access_key:
+         secure: "OL77xjaICyM/5/Xe+9SFvaXqyLT2oOkATOgL5j6ujLILNOhfWAiiPoly5NhG+FFMcyKnNnPyrRtEoYU3DMqPqE2YISfbD9TLsuQOIVRuxiRsjmYlekma4EZR5ihBcEAw0VgSUssJW0tKG/DOyNYneSdfLF6xNP5x5lEsNqrccaSYzPHzWvtXsKsvKU73NCLP6AQJSwYYHOYptRRcSNGS2UXp2KvAti3hAcmm059KTCRqypmRoqZ+/24ItbWMyDzPdUMXjQWm6b5fqWCs5zn4Le8pYav/fBaX+TXdTe+jqVvmvXgAHTfLTxLJXFPBFoi6ErPXSAhkiI7PKivhMFyXPa18tnXQycb3uZxbuUHtWEA9dKdXMSNoRX06hTAS0jF9CAS+M1a+v0mSJOr+ZYsJxH+M5tHkBfdS06xTkkD+p+pk2GS8lm5XKEc/mncsCp5k/MdcNWUQfd+LADfzt+SjIloC5tN7xbLIxEu0H8OXQdY5nM7lbPqNh4S4wAVISgQwiJAy6bi3nZ1udJuNSBkMOAl7WEGJxTxzB+QwjNxdk76neP5mpC6OLA+jNLZq5Gsv2ajUbrG7xVotj9b5Ujn0wfArTIniFcC0UsJE+ZhsmtszyU61VlVVGjQrClFUD4ejUDhc2JJWdySSqsJmZ5UWFTbrN4SnULUP0wNhPpadudI="
 
 script:
 # Coverage runs the tests, so this implies `npm test`
@@ -23,13 +28,5 @@ script:
 # generated correctly from the most recent sources.
 - npm run document && git diff --exit-code README.md
 - npm run minify && git diff --exit-code src/ndt7.min.js
-
-# Set up BrowserStackLocal so that BrowserStack can access the local server.
-- wget https://www.browserstack.com/browserstack-local/BrowserStackLocal-linux-x64.zip
-- unzip BrowserStackLocal-linux-x64.zip
-- export BROWSERSTACK_LOCAL_IDENTIFIER="TestCafe"
-# --parallel-runs is set to the maximum parallel runs allowed by our plan.
-- ./BrowserStackLocal --key $BROWSERSTACK_ACCESS_KEY --local-identifier $BROWSERSTACK_LOCAL_IDENTIFIER --daemon start --parallel-runs 5
 - npm run browserstack
-- ./BrowserStackLocal --key $BROWSERSTACK_ACCESS_KEY --local-identifier TestCafe --daemon stop
 # TODO Upload the code to npm after it is tagged.
