@@ -15,10 +15,10 @@ BROWSERS_WINDOWS=(
 
 BROWSERS_MACOS_SAFARI=(
     "browserstack:safari@15.3:OS X Monterey"
-    "browserstack:safari@14.1:OS X Big Sur"
-    "browserstack:safari@13.1:OS X Catalina"
-    "browserstack:safari@12.1:OS X Mojave"
-    "browserstack:safari@11.1:OS X High Sierra"
+    # "browserstack:safari@14.1:OS X Big Sur"
+    # "browserstack:safari@13.1:OS X Catalina"
+    # "browserstack:safari@12.1:OS X Mojave"
+    # "browserstack:safari@11.1:OS X High Sierra"
 )
 
 BROWSERS_MACOS_OTHERS=(
@@ -41,6 +41,6 @@ function run_tests() {
     testcafe "$BROWSER_LIST" src/test/e2e/test.js --app "node src/test/e2e/server.js"
 }
 
-run_tests "${BROWSERS_WINDOWS[@]}"
-#run_tests "${BROWSERS_MACOS_SAFARI[@]}"
-run_tests "${BROWSERS_MACOS_OTHERS[@]}"
+# run_tests "${BROWSERS_WINDOWS[@]}"
+run_tests "${BROWSERS_MACOS_SAFARI[@]}"
+# run_tests "${BROWSERS_MACOS_OTHERS[@]}"
