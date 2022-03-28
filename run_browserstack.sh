@@ -15,7 +15,7 @@ BROWSERS_WINDOWS=(
 
 BROWSERS_MACOS_SAFARI=(
     # Note: Safari 15 support is broken on TestCafe.
-    "browserstack:safari@15.3:OS X Monterey"
+    #"browserstack:safari@15.3:OS X Monterey"
     "browserstack:safari@14.1:OS X Big Sur"
     "browserstack:safari@13.1:OS X Catalina"
     "browserstack:safari@12.1:OS X Mojave"
@@ -30,16 +30,11 @@ BROWSERS_MACOS_OTHERS=(
 )
 
 function run_tests() {
-    BROWSER_LIST=""
-    BROWSERS=("$@")
-    for ((i = 0; i < ${#BROWSERS[@]}; i++)); do
-        BROWSER_LIST="${BROWSER_LIST},\"${BROWSERS[i]}\""
+    # Run TestCafe for each browser.
+    for browser in "${!BROWSERS_*[@]}"; do
+        echo "Running tests for $browser"
+        testcafe $browser src/test/e2e/test.js --app "node src/test/e2e/server.js"
     done
-    
-    # Remove the initial comma.
-    BROWSER_LIST=${BROWSER_LIST:1}
-
-    testcafe "$BROWSER_LIST" src/test/e2e/test.js --app "node src/test/e2e/server.js"
 }
 
 # run_tests "${BROWSERS_WINDOWS[@]}"
