@@ -4,12 +4,15 @@
 set -e # Exit immediately if a command exits with a non-zero status.
 set -u # Treat unset variables as an error.
 
+# Check that BROWSERSTACK_USERNAME and BROWSERSTACK_ACCESS_KEY are set.
+BROWSERSTACK_USERNAME=${BROWSERSTACK_USERNAME:?"Please set BROWSERSTACK_USERNAME"}
+BROWSERSTACK_ACCESS_KEY=${BROWSERSTACK_ACCESS_KEY:?"Please set BROWSERSTACK_ACCESS_KEY"}
+
 # Define an array of browsers to run.
 BROWSERS_WINDOWS=(
-    "browserstack:chrome@99.0:Windows 11"
-    # "browserstack:opera@84.0:Windows 11"
-    # "browserstack:edge@99.0:Windows 11"
-    # "browserstack:firefox@98.0:Windows 11"
+    "browserstack:chrome:Windows 11"
+    "browserstack:edge:Windows 11"
+    "browserstack:firefox:Windows 11"
 )
 
 BROWSERS_MACOS_SAFARI=(
@@ -17,17 +20,16 @@ BROWSERS_MACOS_SAFARI=(
     # https://github.com/DevExpress/testcafe/issues/6632
     #
     #"browserstack:safari@15.3:OS X Monterey"
-    "browserstack:safari@14.1:OS X Big Sur"
-    "browserstack:safari@13.1:OS X Catalina"
-    "browserstack:safari@12.1:OS X Mojave"
-    "browserstack:safari@11.1:OS X High Sierra"
+    "browserstack:safari:OS X Big Sur"
+    "browserstack:safari:OS X Catalina"
+    "browserstack:safari:OS X Mojave"
+    "browserstack:safari:OS X High Sierra"
 )
 
 BROWSERS_MACOS_OTHERS=(
-    "browserstack:chrome@99.0:OS X Monterey"
-    "browserstack:opera@84.0:OS X Monterey"
-    "browserstack:edge@99.0:OS X Monterey"
-    "browserstack:firefox@98.0:OS X Monterey"
+    "browserstack:chrome:OS X Monterey"
+    "browserstack:edge:OS X Monterey"
+    "browserstack:firefox:OS X Monterey"
 )
 
 BROWSERS_IPHONE=(
@@ -64,15 +66,36 @@ function run_tests() {
     for pid in $pids; do
         if ! wait "$pid"; then
             echo "TestCafe tests failed for at least one browser."
-            kill $NODE_PID
             exit 1
         fi
     done
 }
 
+# If there isn't an identifier for BrowserStackLocal already, download the
+# binary and start it to create the tunnel. The BROWSERSTACK_LOCAL_IDENTIFIER
+# variable is set already when running on Travis. This allows running this
+# script locally.
+BROWSERSTACK_LOCAL_IDENTIFIER=${BROWSERSTACK_LOCAL_IDENTIFIER:-}
+if [ -z "$BROWSERSTACK_LOCAL_IDENTIFIER" ]; then
+    echo "Starting BrowserStackLocal..."
+    # Download the binary if needed.
+    if [ ! -f "./BrowserStackLocal" ]; then
+        wget https://www.browserstack.com/browserstack-local/BrowserStackLocal-linux-x64.zip
+        unzip BrowserStackLocal-linux-x64.zip
+    fi
+    # --parallel-runs is set to the number of parallels supported by the
+    # BrowserStack account.
+    ./BrowserStackLocal --key $BROWSERSTACK_ACCESS_KEY \
+        --local-identifier testcafe-manual-tunnel --parallel-runs 5 &
+
+    # Give BrowserStackLocal some time to start.
+    sleep 3
+
+    export BROWSERSTACK_LOCAL_IDENTIFIER="testcafe-manual-tunnel"
+fi
+
 # Run the test server.
 node src/test/e2e/server.js &
-NODE_PID=$!
 
 TRAVIS_BUILD_ID=${TRAVIS_BUILD_ID:-manual-$(date +%Y%m%d-%H%M%S)}
 export BROWSERSTACK_CAPABILITIES_CONFIG_PATH="`pwd`/browserstack-config.json"
@@ -85,6 +108,3 @@ run_tests "${BROWSERS_MACOS_SAFARI[@]}"
 run_tests "${BROWSERS_MACOS_OTHERS[@]}"
 run_tests "${BROWSERS_IPHONE[@]}"
 run_tests "${BROWSERS_ANDROID[@]}"
-
-# Terminate the test server.
-kill $NODE_PID
