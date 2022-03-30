@@ -1,4 +1,5 @@
 {
     "browserstack.networkProfile": "4g-lte-good",
-    "browserstack.console": "verbose"
+    "browserstack.console": "verbose",
+    "browserstack.networkLogs": "true"
 }
