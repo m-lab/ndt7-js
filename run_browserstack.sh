@@ -87,6 +87,7 @@ if [ -z "$BROWSERSTACK_LOCAL_IDENTIFIER" ]; then
     # BrowserStack account.
     ./BrowserStackLocal --key $BROWSERSTACK_ACCESS_KEY \
         --local-identifier testcafe-manual-tunnel --parallel-runs 5 &
+    BROWSERSTACK_LOCAL_PID=$!
 
     # Give BrowserStackLocal some time to start.
     sleep 3
@@ -96,11 +97,14 @@ fi
 
 # Run the test server.
 node src/test/e2e/server.js &
+NODE_PID=$!
 
 TRAVIS_BUILD_ID=${TRAVIS_BUILD_ID:-manual-$(date +%Y%m%d-%H%M%S)}
 export BROWSERSTACK_CAPABILITIES_CONFIG_PATH="`pwd`/browserstack-config.json"
 export BROWSERSTACK_BUILD_ID="${TRAVIS_BUILD_ID}"
 export BROWSERSTACK_USE_AUTOMATE="1"
+export BROWSERSTACK_CONSOLE="verbose"
+export BROWSERSTACK_NETWORK_LOGS="1"
 
 # Run each group of tests.
 run_tests "${BROWSERS_WINDOWS[@]}"
@@ -108,3 +112,11 @@ run_tests "${BROWSERS_MACOS_SAFARI[@]}"
 run_tests "${BROWSERS_MACOS_OTHERS[@]}"
 run_tests "${BROWSERS_IPHONE[@]}"
 run_tests "${BROWSERS_ANDROID[@]}"
+
+# Terminate the test server.
+kill $NODE_PID
+
+# Terminate the browserstack tunnel if needed.
+if [ -z "$BROWSERSTACK_LOCAL_PID" ]; then
+    kill $BROWSERSTACK_LOCAL_PID
+fi
