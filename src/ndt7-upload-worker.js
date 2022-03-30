@@ -33,7 +33,7 @@ const uploadTest = function(sock, postMessage, now) {
   sock.onerror = function(ev) {
     postMessage({
       MsgType: 'error',
-      Error: ev,
+      Error: ev.type,
     });
   };
 
