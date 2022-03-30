@@ -1,3 +1,4 @@
 {
-    "browserstack.networkProfile": "2g-gprs-good"
+    "browserstack.networkProfile": "4g-lte-good",
+    "browserstack.console": "verbose"
 }

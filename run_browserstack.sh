@@ -30,6 +30,21 @@ BROWSERS_MACOS_OTHERS=(
     "browserstack:firefox@98.0:OS X Monterey"
 )
 
+BROWSERS_IPHONE=(
+    "browserstack:iPhone 13@15"
+    "browserstack:iPhone 12@14"
+    "browserstack:iPhone 11@13"
+    "browserstack:iPhone 8@13"
+)
+
+BROWSERS_ANDROID=(
+    "browserstack:Google Nexus 6@6.0"
+    "browserstack:Samsung Galaxy S8@7.0"
+    "browserstack:Google Pixel@7.1"
+    "browserstack:OnePlus 9@11.0"
+    "browserstack:Xiaomi Redmi Note 8@9.0"
+)
+
 function run_tests() {
     # Run TestCafe for each browser. Here we could define multiple environments
     # on a single TestCafe instance, but this does not work with Safari, for
@@ -62,11 +77,14 @@ NODE_PID=$!
 TRAVIS_BUILD_ID=${TRAVIS_BUILD_ID:-manual-$(date +%Y%m%d-%H%M%S)}
 export BROWSERSTACK_CAPABILITIES_CONFIG_PATH="`pwd`/browserstack-config.json"
 export BROWSERSTACK_BUILD_ID="${TRAVIS_BUILD_ID}"
+export BROWSERSTACK_USE_AUTOMATE="1"
 
 # Run each group of tests.
-#run_tests "${BROWSERS_WINDOWS[@]}"
-#run_tests "${BROWSERS_MACOS_SAFARI[@]}"
+run_tests "${BROWSERS_WINDOWS[@]}"
+run_tests "${BROWSERS_MACOS_SAFARI[@]}"
 run_tests "${BROWSERS_MACOS_OTHERS[@]}"
+run_tests "${BROWSERS_IPHONE[@]}"
+run_tests "${BROWSERS_ANDROID[@]}"
 
 # Terminate the test server.
 kill $NODE_PID
