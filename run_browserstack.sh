@@ -76,6 +76,7 @@ function run_tests() {
 # variable is set already when running on Travis. This allows running this
 # script locally.
 BROWSERSTACK_LOCAL_IDENTIFIER=${BROWSERSTACK_LOCAL_IDENTIFIER:-}
+BROWSERSTACK_LOCAL_PID=""
 if [ -z "$BROWSERSTACK_LOCAL_IDENTIFIER" ]; then
     echo "Starting BrowserStackLocal..."
     # Download the binary if needed.
@@ -99,10 +100,16 @@ fi
 node src/test/e2e/server.js &
 NODE_PID=$!
 
-TRAVIS_BUILD_ID=${TRAVIS_BUILD_ID:-manual-$(date +%Y%m%d-%H%M%S)}
+# Some capabilities can only be configured via a separate JSON file.
 export BROWSERSTACK_CAPABILITIES_CONFIG_PATH="`pwd`/browserstack-config.json"
+# When this script is run by Travis, we just use Travis' build ID.
+# When it is run locally, we generate an ID with the current date/time.
+TRAVIS_BUILD_ID=${TRAVIS_BUILD_ID:-manual-$(date +%Y%m%d-%H%M%S)}
 export BROWSERSTACK_BUILD_ID="${TRAVIS_BUILD_ID}"
+# Use Automate instead of Javascript Testing. This allows to specify further
+# capabilities (such as network logs and connection throttling).
 export BROWSERSTACK_USE_AUTOMATE="1"
+# Save console and network logs.
 export BROWSERSTACK_CONSOLE="verbose"
 export BROWSERSTACK_NETWORK_LOGS="1"
 

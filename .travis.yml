@@ -27,5 +27,15 @@ script:
 # generated correctly from the most recent sources.
 - npm run document && git diff --exit-code README.md
 - npm run minify && git diff --exit-code src/ndt7.min.js
-- npm run browserstack
 # TODO Upload the code to npm after it is tagged.
+
+deploy:
+# Set up a deployment script to run browserstack tests when the deployment is
+# triggered via a cronjob.
+- provider: script
+  skip_cleanup: true
+  script: "npm run browserstack"
+  on:
+    repo: m-lab/ndt7-js
+    all_branches: true
+    condition: "$TRAVIS_EVENT_TYPE == cron"
