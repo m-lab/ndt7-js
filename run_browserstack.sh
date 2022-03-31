@@ -61,8 +61,8 @@ function run_tests() {
         pids+=" $!"
     done
 
-    # Wait for the processes to finish. If any of them fails, terminate the
-    # test server and exit with a non-zero status.
+    # Wait for the processes to finish. If any of them fails, exit with a
+    # non-zero status.
     for pid in $pids; do
         if ! wait "$pid"; then
             echo "TestCafe tests failed for at least one browser."
