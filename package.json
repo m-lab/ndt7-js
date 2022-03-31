@@ -37,14 +37,14 @@
     "minify": "^6.0.1",
     "mocha": "^7.2.0",
     "nyc": "^15.1.0",
-    "testcafe": "^1.18.4"
+    "testcafe": "^1.18.4",
+    "testcafe-browser-provider-browserstack": "^1.13.2"
   },
   "files": [
     "src/**/*"
   ],
   "dependencies": {
     "node-fetch": "^2.6.0",
-    "testcafe-browser-provider-browserstack": "^1.13.2",
     "workerjs": "^0.1.1",
     "ws": "^8.5.0"
   },
