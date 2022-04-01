@@ -10,6 +10,11 @@ before_install:
 addons:
    firefox: latest
    chrome: stable
+   browserstack:
+      username:
+         secure: "gmPqQKABPgef6L+GxJHHW7wK5OC+DlB2GiMZfs7x4b09IumZxk3k889tkHQU6FrFHCPhaZdsL8y4G1Xl3LkW0anFqPTZ6B9dG/2O1dy+UjO/bl5Mc5Q3+FnMKJlAa0lSpGQzwcoimkhQDdaJjQvP5NwJgAZkMA48C6qayO69bY0zieDQ7b56Nicf+cYrIy6AsmEvCLOgogi56DbCkBB1GGr4XXp+gINlIEeavoZPDBwRkWCKnN2KiBS0Tz08YTC3dR8wju/YHFNa/L3rB/fGJ3vufUHsojVnH3clZDEPGrGqJFyxtnff8zcqslZK0Gck95wbzHSZqkqtczOlN7dZ4KUwHOKkFS29fqaWfNM6ltAWi4ZPnPrIROo+TmnbNzt4sD0uYpjowtZA7wvB6H9+xR9+Md3ZRiyQkybDSfsylgkN7RRyWICtgQatOoEfzodV5eqp6p/rjoKjC6Vp35T8gpbZeoJIsPL91ZuYApicVBIGASA+kuNrLBK4ECpviOsPEGwdL/Kcp2NaQQr8eoMZk6Yv1zieXU0LFcpEVu2ADMgQJAV/lvcPrBR932Oj+Yyt7k58K0g5qaxthvRnF07YqZVkPMMjGU8/hefAPxVmBdhvtgr/QppHUvZ9tLYp7wi31bLN2z7TmfX0ms6t8su1Vsu9EnR2guXqUdZfvDu769I="
+      access_key:
+         secure: "e5B3s5IBg7O+J+N6yX2knoXyYPhQDDchxht0NHvqhKy+vj4Rqt+x20130VMdbIR/LZyMV7axTnOLn3GFL28g7n/Aw2+HGsbNSb46QSm+WvC/fjpXGcBTdDxcTUDVDjqDYrZRYAKAOl6Sr0ogYb8X9+dysfbolL+lYscm+QtxMLB5J+uuHB2LDJcinCToVYnyUrlQXnhQVqen7PRvfWAn4tfAUwabLb6+WmuP2Sc8Tlxi3hkvtwsahUXT9TFKEvq1FhLztf16Tl2gFG7NWMvRM401B5Hmc1YlrVR3175ZJ2DHVZXSyeZCw75V4pjrJwej5B6/4truQAlKniIQsani4VkJB/8WaqMqps20gzQieNzLL//yToe8j+6YBf3p4loVucQ1mEruJDlp+piA33yJ2IOQ/zDOrnN9/VglAvoLzjqk5Lg0jOGBOo/AY7f9rcMSjOKPXB7gVwQB3pdnvL2Hm3qRZg+r0DahfB/ExlWLH5odIxpiD0mHmkX7quFZJiF5Y0lzyiH9xHDhHgCnm9pg12/FcLn+H15wHeyyV/YC5LfD6p0N6nQapln3PMWjaOS7A6/efyZY8LGZAi7PVMIVuVuStSWXAjNjZDHAgsczEH6EV7Tj2FoGkqPkHd0mD5ipGx6uKe9/ZNffH7mC6hd+jkW31dIl3JQJ2Aw3DMIvQBA="
 
 script:
 # Coverage runs the tests, so this implies `npm test`
@@ -23,5 +28,15 @@ script:
 # generated correctly from the most recent sources.
 - npm run document && git diff --exit-code README.md
 - npm run minify && git diff --exit-code src/ndt7.min.js
-
 # TODO Upload the code to npm after it is tagged.
+
+deploy:
+# Set up a deployment script to run browserstack tests when the deployment is
+# triggered via a cronjob.
+- provider: script
+  skip_cleanup: true
+  script: "npm run browserstack"
+  on:
+    repo: m-lab/ndt7-js
+    all_branches: true
+    condition: "$TRAVIS_EVENT_TYPE == cron"

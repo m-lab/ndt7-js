@@ -14,6 +14,7 @@
     <div id="minRTT"></div>
     <div id="uploadStatus"></div>
     <div id="upload"></div>
+    <div id="error"></div>
     <div id="exitcode"></div>
 
     <script type="text/javascript">
@@ -22,6 +23,7 @@
                 userAcceptedDataPolicy: true,
                 downloadworkerfile: 'ndt7-download-worker.min.js',
                 uploadworkerfile: 'ndt7-upload-worker.min.js',
+                loadbalancer: 'https://locate-dot-mlab-staging.appspot.com/v2/nearest/ndt/ndt7'
             },
             {
                 serverChosen: (server) => {
@@ -58,6 +60,10 @@
                     document.getElementById('upload').innerHTML = data.LastClientMeasurement.MeanClientMbps;
                     document.getElementById('uploadStatus').innerHTML = "complete";
                 },
+                error: (data) => {
+                    console.log('Error', data);
+                    document.getElementById('error').innerHTML = JSON.stringify(data);
+                }
             },
         ).then((exitcode) => {
             document.getElementById('exitcode').innerHTML = exitcode;
