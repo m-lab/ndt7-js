@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>ndt7-js test client</title>
+    <script src="ndt7.min.js" type="text/javascript"></script>
+</head>
+
+<body>
+    <div id="server"></div>
+    <div id="downloadStatus"></div>
+    <div id="download"></div>
+    <div id="minRTT"></div>
+    <div id="uploadStatus"></div>
+    <div id="upload"></div>
+    <div id="error"></div>
+    <div id="exitcode"></div>
+
+    <script type="text/javascript">
+        ndt7.test(
+            {
+                userAcceptedDataPolicy: true,
+                downloadworkerfile: 'ndt7-download-worker.min.js',
+                uploadworkerfile: 'ndt7-upload-worker.min.js',
+                loadbalancer: 'https://locate-dot-mlab-staging.appspot.com/v2/nearest/ndt/ndt7'
+            },
+            {
+                serverChosen: (server) => {
+                    console.log('Testing to:', {
+                        machine: server.machine,
+                        locations: server.location,
+                    });
+                    document.getElementById('server').innerHTML = server.machine;
+                },
+                downloadMeasurement: (data) => {
+                    if (data.Source === 'client') {
+                        console.log("Measuring download speed", data.Data.MeanClientMbps);
+                        document.getElementById('download').innerHTML = data.Data.MeanClientMbps;
+                    }
+                    document.getElementById('downloadStatus').innerHTML = "measuring";
+                    
+                },
+                downloadComplete: function (data) {
+                    minRTT = (data.LastServerMeasurement.TCPInfo.MinRTT / 1000);
+                    console.log('Download speed', data.LastClientMeasurement.MeanClientMbps);
+                    document.getElementById('download').innerHTML = 
+                        data.LastClientMeasurement.MeanClientMbps;
+                    document.getElementById('downloadStatus').innerHTML = "complete";
+                },
+                uploadMeasurement: (data) => {
+                    if (data.Source === 'client') {
+                        console.log("Measuring upload speed", data.Data.MeanClientMbps);
+                        document.getElementById('upload').innerHTML = data.Data.MeanClientMbps;
+                    }
+                    document.getElementById('uploadStatus').innerHTML = "measuring";
+                },
+                uploadComplete: (data) => {
+                    console.log('Upload speed', data.LastClientMeasurement.MeanClientMbps);
+                    document.getElementById('upload').innerHTML = data.LastClientMeasurement.MeanClientMbps;
+                    document.getElementById('uploadStatus').innerHTML = "complete";
+                },
+                error: (data) => {
+                    console.log('Error', data);
+                    document.getElementById('error').innerHTML = JSON.stringify(data);
+                }
+            },
+        ).then((exitcode) => {
+            document.getElementById('exitcode').innerHTML = exitcode;
+        });
+    </script>
+</body>
+
+</html>

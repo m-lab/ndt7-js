@@ -2,7 +2,7 @@
 
 // Node doesn't have WebSocket defined, so it needs this library.
 if (typeof WebSocket === 'undefined') {
-  global.WebSocket = require('isomorphic-ws');
+  global.WebSocket = require('ws');
 }
 
 // workerMain is the WebWorker function that runs the ndt7 download test.
@@ -10,10 +10,12 @@ const workerMain = function(ev) {
   'use strict';
   const url = ev.data['///ndt/v7/download'];
   const sock = new WebSocket(url, 'net.measurementlab.ndt.v7');
-  let now = () => new Date().getTime();
+  let now;
   if (typeof performance !== 'undefined' &&
-      typeof performance.now !== 'undefined') {
+      typeof performance.now === 'function') {
     now = () => performance.now();
+  } else {
+    now = () => Date.now();
   }
   downloadTest(sock, postMessage, now);
 };
@@ -37,7 +39,7 @@ const downloadTest = function(sock, postMessage, now) {
   sock.onerror = function(ev) {
     postMessage({
       MsgType: 'error',
-      Error: ev,
+      Error: ev.type,
     });
   };
 

@@ -2,17 +2,19 @@
 
 // Node doesn't have WebSocket defined, so it needs this library.
 if (typeof WebSocket === 'undefined') {
-  global.WebSocket = require('isomorphic-ws');
+  global.WebSocket = require('ws');
 }
 
 // WebWorker that runs the ndt7 upload test
 const workerMain = function(ev) {
   const url = ev.data['///ndt/v7/upload'];
   const sock = new WebSocket(url, 'net.measurementlab.ndt.v7');
-  let now = () => new Date().getTime();
+  let now;
   if (typeof performance !== 'undefined' &&
-      typeof performance.now !== 'undefined') {
+      typeof performance.now === 'function') {
     now = () => performance.now();
+  } else {
+    now = () => Date.now();
   }
   uploadTest(sock, postMessage, now);
 };
@@ -26,6 +28,13 @@ const uploadTest = function(sock, postMessage, now) {
         MsgType: 'complete',
       });
     }
+  };
+
+  sock.onerror = function(ev) {
+    postMessage({
+      MsgType: 'error',
+      Error: ev.type,
+    });
   };
 
   sock.onmessage = function(ev) {
@@ -57,10 +66,8 @@ const uploadTest = function(sock, postMessage, now) {
    * is used as a speed test, we don't know before the test which strategy we
    * will be using, because we don't know the speed before we test it.
    * Therefore, we use a strategy where we grow the message exponentially over
-   * time and maintain the invariant that the message size is always either 8k
-   * or less than 1/8 of the total number of bytes we have enqueued. In an
-   * effort to be kind to the memory allocator, we always double the message
-   * size instead of growing it by e.g. 1.3x.
+   * time. In an effort to be kind to the memory allocator, we always double
+   * the message size instead of growing it by e.g. 1.3x.
    *
    * @param {*} data
    * @param {*} start
@@ -74,61 +81,69 @@ const uploadTest = function(sock, postMessage, now) {
       // observed this behaviour with pre-Chromium Edge.
       return;
     }
-    let t = now();
+    const t = now();
     if (t >= end) {
       sock.close();
+      // send one last measurement.
+      postClientMeasurement(total, sock.bufferedAmount, start);
       return;
     }
 
-    const maxMessageSize = 16777216; /* = (1<<24) = 16MB */
+    const maxMessageSize = 8388608; /* = (1<<23) = 8MB */
+    const clientMeasurementInterval = 250; // ms
+
+    // Message size is doubled after the first 16 messages, and subsequently
+    // every 8, up to maxMessageSize.
     const nextSizeIncrement =
         (data.length >= maxMessageSize) ? Infinity : 16 * data.length;
-    if (total >= nextSizeIncrement) {
-      // Optional todo: fill this message with randomness.
+    if ((total - sock.bufferedAmount) >= nextSizeIncrement) {
       data = new Uint8Array(data.length * 2);
     }
 
-    const clientMeasurementInterval = 250; // ms
-    const loopEndTime = Math.min(previous + clientMeasurementInterval, end);
-    const desiredBuffer = 8 * data.length;
-
-    // While we would still like to buffer more messages, and we haven't been
-    // running for too long, and we don't need to resize the message... keep
-    // sending.
-    //
-    // The buffering bound prevents us from wasting local memory, the time bound
-    // prevents us from stalling the UI event loop, and the sizeIncrement bound
-    // allows us to dynamically respond to fast connections.
-    while (sock.bufferedAmount < desiredBuffer &&
-           t < loopEndTime &&
-           total < nextSizeIncrement
-    ) {
+    // We keep 7 messages in the send buffer, so there is always some more
+    // data to send. The maximum buffer size is 8 * 8MB - 1 byte ~= 64M.
+    const desiredBuffer = 7 * data.length;
+    if (sock.bufferedAmount < desiredBuffer) {
       sock.send(data);
-      t = now();
       total += data.length;
     }
 
     if (t >= previous + clientMeasurementInterval) {
-      const numBytes = total - sock.bufferedAmount;
-      // ms / 1000 = seconds
-      const elapsedTime = (t - start) / 1000;
-      // bytes * bits/byte * megabits/bit * 1/seconds = Mbps
-      const meanMbps = numBytes * 8 / 1000000 / elapsedTime;
-      postMessage({
-        MsgType: 'measurement',
-        ClientData: {
-          ElapsedTime: elapsedTime,
-          NumBytes: numBytes,
-          MeanClientMbps: meanMbps,
-        },
-        Source: 'client',
-        Test: 'upload',
-      });
+      postClientMeasurement(total, sock.bufferedAmount, start);
       previous = t;
     }
 
     // Loop the uploader function in a way that respects the JS event handler.
     setTimeout(() => uploader(data, start, end, previous, total), 0);
+  }
+
+  /** Report measurement back to the main thread.
+   *
+   * Note: client-side measurement are not guaranteed to be accurate, because
+   * the browser (or the websocket library, in case this runs with nodejs)
+   * might report bufferedAmount incorrectly.
+   *
+   * @param {*} total
+   * @param {*} bufferedAmount
+   * @param {*} start
+   */
+  function postClientMeasurement(total, bufferedAmount, start) {
+    // bytes sent - bytes buffered = bytes actually sent
+    const numBytes = total - bufferedAmount;
+    // ms / 1000 = seconds
+    const elapsedTime = (now() - start) / 1000;
+    // bytes * bits/byte * megabits/bit * 1/seconds = Mbps
+    const meanMbps = numBytes * 8 / 1000000 / elapsedTime;
+    postMessage({
+      MsgType: 'measurement',
+      ClientData: {
+        ElapsedTime: elapsedTime,
+        NumBytes: numBytes,
+        MeanClientMbps: meanMbps,
+      },
+      Source: 'client',
+      Test: 'upload',
+    });
   }
 
   sock.onopen = function() {
