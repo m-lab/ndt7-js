@@ -11,7 +11,7 @@ ndt7.test(
     {
       userAcceptedDataPolicy: true,
       metadata: {
-        name: 'ndt7-nodejs-example',
+        client_name: 'ndt7-nodejs-example',
       },
     },
     {
