@@ -247,8 +247,6 @@
         throw err;
       });
 
-
-
       // Start the worker.
       worker.postMessage(urls);
 
