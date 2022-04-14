@@ -51,7 +51,7 @@
         })
       }
       // Merge the static metadata, overwriting any fields that are already
-      // present.
+      // present with the same name.
       return Object.assign(new_metadata, static_metadata);
     }
     // cb creates a default-empty callback function, allowing library users to
