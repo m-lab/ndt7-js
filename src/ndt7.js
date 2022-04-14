@@ -29,6 +29,31 @@
    * @namespace ndt7
    */
   const ndt7 = (function() {
+    const static_metadata = {
+      "client_library_name": "ndt7-js",
+      "client_library_version": "0.0.5",
+    }
+    // prepareMetadata prefixes all the fields with client_ and merges the
+    // static fields are merged with the user-provided metadata. This function
+    // is idempotent.
+    //
+    // This function is not exported.
+    const prepareMetadata = function(metadata) {
+      const new_metadata = {};
+      // Make sure all the metadata fields are prefixed with "client".
+      if (metadata !== undefined) {
+        Object.keys(metadata).forEach(function(key) {
+          if (!key.startsWith("client_")) {
+            new_metadata["client_" + key] = metadata[key];
+            return
+          }
+          new_metadata[key] = metadata[key];
+        })
+      }
+      // Merge the static metadata, overwriting any fields that are already
+      // present.
+      return Object.assign(new_metadata, static_metadata);
+    }
     // cb creates a default-empty callback function, allowing library users to
     // only need to specify callback functions for the events they care about.
     //
@@ -65,6 +90,7 @@
      * @public
      */
     async function discoverServerURLs(config, userCallbacks) {
+      config.metadata = prepareMetadata(config.metadata);
       const callbacks = {
         error: cb('error', userCallbacks, defaultErrCallback),
         serverDiscovery: cb('serverDiscovery', userCallbacks),
@@ -77,15 +103,27 @@
 
       // If a server was specified, use it.
       if (config && ('server' in config)) {
+        // Add metadata as querystring parameters.
+        let downloadURL = protocol + '://' + config.server + '/ndt/v7/download?';
+        let uploadURL = protocol + '://' + config.server + '/ndt/v7/upload?';
+        for (const key in config.metadata) {
+          downloadURL += key + '=' + config.metadata[key] + '&';
+          uploadURL += key + '=' + config.metadata[key] + '&';
+        }
         return {
-          '///ndt/v7/download': protocol + '://' + config.server + '/ndt/v7/download',
-          '///ndt/v7/upload': protocol + '://' + config.server + '/ndt/v7/upload',
+          '///ndt/v7/download': downloadURL.slice(0, -1),
+          '///ndt/v7/upload': uploadURL.slice(0, -1),
         };
       }
 
       // If no server was specified then use a loadbalancer. If no loadbalancer
       // is specified, use the locate service from Measurement Lab.
-      const lbURL = (config && ('loadbalancer' in config)) ? config.loadbalancer : new URL('https://locate.measurementlab.net/v2/nearest/ndt/ndt7');
+      let lbURL = (config && ('loadbalancer' in config)) ? config.loadbalancer.toString() : 'https://locate.measurementlab.net/v2/nearest/ndt/ndt7';
+      lbURL += '?';
+      for (const key in config.metadata) {
+        lbURL += key + '=' + config.metadata[key] + '&';
+      }
+      lbURL = new URL(lbURL);
       callbacks.serverDiscovery({loadbalancer: lbURL});
       const response = await fetch(lbURL).catch((err) => {
         throw new Error(err);
@@ -208,6 +246,8 @@
         worker.resolve(2);
         throw err;
       });
+
+
 
       // Start the worker.
       worker.postMessage(urls);
