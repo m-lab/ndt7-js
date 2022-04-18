@@ -29,6 +29,10 @@
    * @namespace ndt7
    */
   const ndt7 = (function() {
+    const staticMetadata = {
+      'client_library_name': 'ndt7-js',
+      'client_library_version': '0.0.5',
+    };
     // cb creates a default-empty callback function, allowing library users to
     // only need to specify callback functions for the events they care about.
     //
@@ -65,6 +69,7 @@
      * @public
      */
     async function discoverServerURLs(config, userCallbacks) {
+      config.metadata = Object.assign(config.metadata, staticMetadata);
       const callbacks = {
         error: cb('error', userCallbacks, defaultErrCallback),
         serverDiscovery: cb('serverDiscovery', userCallbacks),
@@ -75,17 +80,24 @@
         protocol = config.protocol;
       }
 
+      const metadata = new URLSearchParams(config.metadata);
       // If a server was specified, use it.
       if (config && ('server' in config)) {
+        // Add metadata as querystring parameters.
+        const downloadURL = new URL(protocol + '://' + config.server + '/ndt/v7/download');
+        const uploadURL = new URL(protocol + '://' + config.server + '/ndt/v7/upload');
+        downloadURL.search = metadata;
+        uploadURL.search = metadata;
         return {
-          '///ndt/v7/download': protocol + '://' + config.server + '/ndt/v7/download',
-          '///ndt/v7/upload': protocol + '://' + config.server + '/ndt/v7/upload',
+          '///ndt/v7/download': downloadURL.toString(),
+          '///ndt/v7/upload': uploadURL.toString(),
         };
       }
 
       // If no server was specified then use a loadbalancer. If no loadbalancer
       // is specified, use the locate service from Measurement Lab.
       const lbURL = (config && ('loadbalancer' in config)) ? config.loadbalancer : new URL('https://locate.measurementlab.net/v2/nearest/ndt/ndt7');
+      lbURL.search = metadata;
       callbacks.serverDiscovery({loadbalancer: lbURL});
       const response = await fetch(lbURL).catch((err) => {
         throw new Error(err);

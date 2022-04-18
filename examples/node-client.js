@@ -10,6 +10,9 @@ const ndt7 = require('../src/ndt7.js');
 ndt7.test(
     {
       userAcceptedDataPolicy: true,
+      metadata: {
+        client_name: 'ndt7-nodejs-example',
+      },
     },
     {
       serverChosen: function(server) {
