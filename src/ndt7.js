@@ -69,6 +69,7 @@
      * @public
      */
     async function discoverServerURLs(config, userCallbacks) {
+      config.metadata = Object.assign({}, config.metadata);
       config.metadata = Object.assign(config.metadata, staticMetadata);
       const callbacks = {
         error: cb('error', userCallbacks, defaultErrCallback),
