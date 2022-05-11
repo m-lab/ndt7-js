@@ -1,6 +1,6 @@
 {
   "name": "@m-lab/ndt7",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "NDT7 client for measuring networks",
   "main": "src/ndt7.js",
   "scripts": {
