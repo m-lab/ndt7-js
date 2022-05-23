@@ -1,7 +1,7 @@
 language: node_js
 
 node_js:
-- 12
+- 17
 
 # Required by TestCafe.
 before_install:
