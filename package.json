@@ -22,7 +22,7 @@
     "ndt",
     "ndt7"
   ],
-  "author": "",
+  "author": "Measurement Lab",
   "license": "Apache-2.0",
   "engines": {
     "node": ">=12"
