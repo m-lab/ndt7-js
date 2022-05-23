@@ -22,7 +22,7 @@
     "ndt",
     "ndt7"
   ],
-  "author": "",
+  "author": "Measurement Lab",
   "license": "Apache-2.0",
   "engines": {
     "node": ">=12"
@@ -42,14 +42,5 @@
   },
   "files": [
     "src/**/*"
-  ],
-  "dependencies": {
-    "node-fetch": "^2.6.0",
-    "workerjs": "^0.1.1",
-    "ws": "^8.5.0"
-  },
-  "optionalDependencies": {
-    "bufferutil": "^4.0.6",
-    "utf-8-validate": "^5.0.8"
-  }
+  ]
 }

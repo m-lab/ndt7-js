@@ -12,18 +12,6 @@
 (function() {
   'use strict';
 
-  // If this is running as a node module then WebSocket, fetch, and Worker
-  // may all need to be defined.  In the browser they should already exist.
-  if (typeof WebSocket === 'undefined') {
-    global.WebSocket = require('ws');
-  }
-  if (typeof fetch === 'undefined') {
-    global.fetch = require('node-fetch');
-  }
-  if (typeof Worker === 'undefined') {
-    global.Worker = require('workerjs');
-  }
-
   /**
    * @name ndt7
    * @namespace ndt7
@@ -144,14 +132,6 @@
 
       let clientMeasurement;
       let serverMeasurement;
-
-      // Sometimes things like __dirname will exist even in browser environments
-      // instead check for well known node.js only environment markers
-      if (typeof process !== 'undefined' &&
-                 process.versions != null &&
-                 process.versions.node != null) {
-        filename = __dirname + '/' + filename;
-      }
 
       // This makes the worker. The worker won't actually start until it
       // receives a message.

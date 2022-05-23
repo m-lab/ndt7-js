@@ -1,10 +1,5 @@
 /* eslint-env browser, node, worker */
 
-// Node doesn't have WebSocket defined, so it needs this library.
-if (typeof WebSocket === 'undefined') {
-  global.WebSocket = require('ws');
-}
-
 // workerMain is the WebWorker function that runs the ndt7 download test.
 const workerMain = function(ev) {
   'use strict';

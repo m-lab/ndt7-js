@@ -1,10 +1,5 @@
 /* eslint-env es6, browser, node, worker */
 
-// Node doesn't have WebSocket defined, so it needs this library.
-if (typeof WebSocket === 'undefined') {
-  global.WebSocket = require('ws');
-}
-
 // WebWorker that runs the ndt7 upload test
 const workerMain = function(ev) {
   const url = ev.data['///ndt/v7/upload'];
@@ -118,10 +113,6 @@ const uploadTest = function(sock, postMessage, now) {
   }
 
   /** Report measurement back to the main thread.
-   *
-   * Note: client-side measurement are not guaranteed to be accurate, because
-   * the browser (or the websocket library, in case this runs with nodejs)
-   * might report bufferedAmount incorrectly.
    *
    * @param {*} total
    * @param {*} bufferedAmount

@@ -1,13 +1,20 @@
+# ndt7-js
+
 The official [NDT7](https://github.com/m-lab/ndt-server) Javascript client
-libraries. This code works with Node.js >= 12, in a browser, and is the
-source for the npm package `ndt7`.
+library. This code works in all modern browsers and is the source for the npm
+package [`@m-lab/ndt7`](https://www.npmjs.com/package/@m-lab/ndt7).
 
-Includes an example web client and an example node.js client in the `examples/`
-directory. Pull requests gratefully accepted if you would like to write a
-more sophisticated web or CLI client that uses the returned measurements to
-debug network conditions.
+Includes an example web client in the `examples/` directory. Pull requests
+gratefully accepted if you would like to write a more sophisticated web client
+that uses the returned measurements to debug network conditions.
 
-# API Reference
+In case you need a standalone client binary that you can build and run on
+multiple operating systems and CPU architectures (including embedded devices)
+have a look at the
+[official Go client](https://github.com/m-lab/ndt7-client-go) instead.
+
+## API Reference
+
 <a name="ndt7"></a>
 
 ## ndt7 : <code>object</code>
@@ -79,5 +86,4 @@ followed by an upload test.
 | --- | --- | --- |
 | config | <code>Object</code> | An associative array of configuration strings |
 | userCallbacks | <code>Object</code> |  |
-
 
