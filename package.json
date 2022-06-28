@@ -3,6 +3,7 @@
   "version": "0.0.6",
   "description": "NDT7 client for measuring networks",
   "main": "src/ndt7.js",
+  "types": "src/ndt7.d.ts",
   "scripts": {
     "test": "mocha src/test && cp src/*.min.js src/test/e2e/ && testcafe chrome:headless,firefox:headless src/test/e2e/test.js --app \"node src/test/e2e/server.js\"",
     "coverage": "nyc --reporter=lcovonly  --file=coverage.cov --reporter=text npm run test",
