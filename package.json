@@ -35,7 +35,7 @@
     "express": "^4.17.1",
     "jsdoc-to-markdown": "^6.0.1",
     "minify": "^6.0.1",
-    "mocha": "^7.2.0",
+    "mocha": "^10.2.0",
     "nyc": "^15.1.0",
     "testcafe": "^1.18.4",
     "testcafe-browser-provider-browserstack": "^1.13.2"
