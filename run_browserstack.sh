@@ -90,8 +90,8 @@ if [ -z "$BROWSERSTACK_LOCAL_IDENTIFIER" ]; then
         --local-identifier testcafe-manual-tunnel --parallel-runs 5 &
     BROWSERSTACK_LOCAL_PID=$!
 
-    # Give BrowserStackLocal some time to start.
-    sleep 3
+    # Give BrowserStackLocal more time to start and establish stable connection.
+    sleep 10
 
     export BROWSERSTACK_LOCAL_IDENTIFIER="testcafe-manual-tunnel"
 fi
@@ -124,6 +124,6 @@ run_tests "${BROWSERS_ANDROID[@]}"
 kill $NODE_PID
 
 # Terminate the browserstack tunnel if needed.
-if [ -z "$BROWSERSTACK_LOCAL_PID" ]; then
+if [ -n "$BROWSERSTACK_LOCAL_PID" ]; then
     kill $BROWSERSTACK_LOCAL_PID
 fi
