@@ -27,7 +27,6 @@ script:
 # Verify that the things that are compiled and checked in have been
 # generated correctly from the most recent sources.
 - npm run document && git diff --exit-code README.md
-- npm run minify
 # TODO Upload the code to npm after it is tagged.
 
 deploy:
