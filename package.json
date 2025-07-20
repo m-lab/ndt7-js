@@ -1,15 +1,16 @@
 {
   "name": "@m-lab/ndt7",
-  "version": "0.0.6",
+  "version": "0.1.0",
   "description": "NDT7 client for measuring networks",
   "main": "src/ndt7.js",
   "scripts": {
-    "test": "mocha src/test && cp src/*.min.js src/test/e2e/ && testcafe chrome:headless,firefox:headless src/test/e2e/test.js --app \"node src/test/e2e/server.js\"",
+    "test": "mocha src/test",
     "coverage": "nyc --reporter=lcovonly  --file=coverage.cov --reporter=text npm run test",
     "lint": "eslint --ext .js src/",
     "document": "jsdoc2md --files=src/ndt7.js --template README.template.md > README.md",
     "minify": "minify --js < src/ndt7.js | sed -e 's/load-worker.js/load-worker.min.js/g' > src/ndt7.min.js && minify --js < src/ndt7-download-worker.js > src/ndt7-download-worker.min.js && minify --js < src/ndt7-upload-worker.js > src/ndt7-upload-worker.min.js",
-    "browserstack": "cp src/*.min.js src/test/e2e/ && ./run_browserstack.sh"
+    "prepublishOnly": "npm run minify",
+    "browserstack": "npm run minify && cp src/*.min.js src/test/e2e/ && browserstack-node-sdk mocha src/test/e2e/mocha-test.js --app \"node src/test/e2e/server.js\""
   },
   "repository": {
     "type": "git",
@@ -28,17 +29,17 @@
     "node": ">=12"
   },
   "devDependencies": {
+    "browserstack-node-sdk": "^1.38.2",
     "chai": "^4.2.0",
     "coveralls": "^3.1.0",
-    "eslint": "^7.2.0",
+    "eslint": "^9.31.0",
     "eslint-config-google": "^0.14.0",
     "express": "^4.17.1",
     "jsdoc-to-markdown": "^6.0.1",
     "minify": "^6.0.1",
     "mocha": "^7.2.0",
     "nyc": "^15.1.0",
-    "testcafe": "^1.18.4",
-    "testcafe-browser-provider-browserstack": "^1.13.2"
+    "selenium-webdriver": "^4.34.0"
   },
   "files": [
     "src/**/*"

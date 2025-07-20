@@ -1,2 +1,5 @@
 node_modules
-src/test/e2e/*.min.js
+*.min.js
+reports/
+coverage/
+.nyc_output/

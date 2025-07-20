@@ -1,4 +1,3 @@
-/* eslint-disable require-jsdoc */
 /* eslint-env es6, node, browser, mocha */
 
 'use strict';
