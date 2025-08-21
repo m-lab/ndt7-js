@@ -35,10 +35,10 @@ function traceSaver(filename, verbose) {
     }
     f.write(msg);
   };
-  const start = function(msg) {
+  const start = function() {
     f = fs.createWriteStream(filename);
   };
-  const complete = function(msg) {
+  const complete = function() {
     f.end();
     f = undefined;
   };

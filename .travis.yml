@@ -1,9 +1,9 @@
 language: node_js
 
 node_js:
-- 17
+- 18
+- 20
 
-# Required by TestCafe.
 before_install:
    - stty cols 80
 
@@ -27,7 +27,6 @@ script:
 # Verify that the things that are compiled and checked in have been
 # generated correctly from the most recent sources.
 - npm run document && git diff --exit-code README.md
-- npm run minify && git diff --exit-code src/ndt7.min.js
 # TODO Upload the code to npm after it is tagged.
 
 deploy:
