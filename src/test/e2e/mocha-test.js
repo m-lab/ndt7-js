@@ -36,7 +36,26 @@ describe("NDT7 Network Speed Test", function () {
     // Navigate to the test page
     await driver.get("http://localhost:5000");
 
-    // Wait for page to load and ndt7 to be available
+    // Wait for DOM to be ready first
+    await driver.wait(
+      async () => {
+        try {
+          const domReady = await driver.executeScript(
+            'return document.readyState === "complete"',
+          );
+          return domReady;
+        } catch (e) {
+          return false;
+        }
+      },
+      15000,
+      "Page should be fully loaded",
+    );
+
+    // Small delay to ensure scripts are parsed
+    await driver.sleep(1000);
+
+    // Wait for ndt7 to be available
     await driver.wait(
       async () => {
         try {
