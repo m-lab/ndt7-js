@@ -9,8 +9,7 @@
     "lint": "eslint --ext .js src/",
     "document": "jsdoc2md --files=src/ndt7.js --template README.template.md > README.md",
     "minify": "minify --js < src/ndt7.js | sed -e 's/ndt7-download-worker\\.js/ndt7-download-worker.min.js/g' -e 's/ndt7-upload-worker\\.js/ndt7-upload-worker.min.js/g' > src/ndt7.min.js && minify --js < src/ndt7-download-worker.js > src/ndt7-download-worker.min.js && minify --js < src/ndt7-upload-worker.js > src/ndt7-upload-worker.min.js",
-    "prepublishOnly": "npm run minify",
-    "browserstack": "npm run minify && cp src/*.min.js src/test/e2e/ && browserstack-node-sdk mocha src/test/e2e/mocha-test.js --app \"node src/test/e2e/server.js\""
+    "prepublishOnly": "npm run minify"
   },
   "repository": {
     "type": "git",
@@ -29,7 +28,6 @@
     "node": ">=12"
   },
   "devDependencies": {
-    "browserstack-node-sdk": "^1.38.2",
     "chai": "^4.2.0",
     "coveralls": "^3.1.0",
     "eslint": "^9.31.0",
@@ -38,8 +36,7 @@
     "jsdoc-to-markdown": "^6.0.1",
     "minify": "^6.0.1",
     "mocha": "^7.2.0",
-    "nyc": "^15.1.0",
-    "selenium-webdriver": "^4.34.0"
+    "nyc": "^15.1.0"
   },
   "files": [
     "src/**/*"
