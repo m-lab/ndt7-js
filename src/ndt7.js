@@ -48,10 +48,34 @@
      * which is useful for clients served from the webserver of an NDT server.
      *
      * @param {Object} config - An associative array of configuration options.
+     * @param {string} [config.server] - Optional server hostname to connect to
+     *     directly, bypassing the locate service. Useful for testing against a
+     *     specific NDT server.
+     * @param {string} [config.protocol='wss'] - WebSocket protocol to use.
+     *     Either 'wss' (secure WebSocket) or 'ws' (insecure). Defaults to 'wss'.
+     * @param {Object} [config.metadata] - Optional metadata to identify your
+     *     application. Recommended fields: `client_name` (your application name,
+     *     e.g., 'my-speed-test') and `client_version` (your application version,
+     *     e.g., '2.1.0'). These are sent as query parameters to help distinguish
+     *     different integrations. The library automatically includes
+     *     `client_library_name` ('ndt7-js') and `client_library_version`.
+     * @param {string} [config.loadbalancer] - Optional custom locate service
+     *     URL to use instead of the default M-Lab locate service.
+     * @param {string} [config.clientRegistrationToken] - Optional JWT token for
+     *     registered integrator access. When provided, identifies that tests are
+     *     being run through a registered client integration, enabling access to
+     *     the priority endpoint (v2/priority/nearest) with higher rate limits.
+     *     The token should be obtained from your integrator backend that securely
+     *     manages API credentials with the M-Lab token exchange service. This
+     *     registers your client implementation, not individual end users.
      * @param {Object} userCallbacks - An associative array of user callbacks.
-     *
-     * It uses the callback functions `error`, `serverDiscovery`, and
-     * `serverChosen`.
+     * @param {Function} [userCallbacks.error] - Called when an error occurs.
+     *     Receives an error message string. If not provided, errors throw.
+     * @param {Function} [userCallbacks.serverDiscovery] - Called when server
+     *     discovery starts. Receives `{loadbalancer: URL}` where URL is the
+     *     locate service URL being queried.
+     * @param {Function} [userCallbacks.serverChosen] - Called when a server
+     *     is selected. Receives the server object from locate results.
      *
      * @name ndt7.discoverServerURLS
      * @public
@@ -85,10 +109,33 @@
 
       // If no server was specified then use a loadbalancer. If no loadbalancer
       // is specified, use the locate service from Measurement Lab.
-      const lbURL = (config && ('loadbalancer' in config)) ? new URL(config.loadbalancer) : new URL('https://locate.measurementlab.net/v2/nearest/ndt/ndt7');
+      // 
+      // When a clientRegistrationToken is provided and no custom loadbalancer
+      // is specified, use the priority endpoint.
+      let lbURL;
+      if (config && ('loadbalancer' in config)) {
+        // Use custom loadbalancer if specified
+        lbURL = new URL(config.loadbalancer);
+      } else if (config && ('clientRegistrationToken' in config)) {
+        // Use priority endpoint for authenticated requests
+        lbURL = new URL('https://locate.measurementlab.net/v2/priority/nearest/ndt/ndt7');
+      } else {
+        // Use regular endpoint for unauthenticated requests
+        lbURL = new URL('https://locate.measurementlab.net/v2/nearest/ndt/ndt7');
+      }
       lbURL.search = metadata;
       callbacks.serverDiscovery({loadbalancer: lbURL});
-      const response = await fetch(lbURL).catch((err) => {
+
+      // Prepare fetch options with Authorization header if token is present
+      const fetchOptions = {};
+      if (config && ('clientRegistrationToken' in config)) {
+        fetchOptions.headers = {
+          'Authorization': `Bearer ${config.clientRegistrationToken}`,
+        };
+      }
+
+      // Perform the HTTP round trip with the load balancer
+      const response = await fetch(lbURL, fetchOptions).catch((err) => {
         throw new Error(err);
       });
       const js = await response.json();
@@ -270,10 +317,56 @@
      * test discovers a server to run against and then runs a download test
      * followed by an upload test.
      *
-     * @param {Object} config - An associative array of configuration strings
-     * @param {Object} userCallbacks
+     * @param {Object} config - An associative array of configuration options.
+     * @param {string} [config.server] - Optional server hostname to connect to
+     *     directly, bypassing the locate service. Useful for testing against a
+     *     specific NDT server.
+     * @param {string} [config.protocol='wss'] - WebSocket protocol to use.
+     *     Either 'wss' (secure WebSocket) or 'ws' (insecure). Defaults to 'wss'.
+     * @param {Object} [config.metadata] - Optional metadata to identify your
+     *     application. Recommended fields: `client_name` (your application name,
+     *     e.g., 'my-speed-test') and `client_version` (your application version,
+     *     e.g., '2.1.0'). These are sent as query parameters to help distinguish
+     *     different integrations. The library automatically includes
+     *     `client_library_name` ('ndt7-js') and `client_library_version`.
+     * @param {string} [config.loadbalancer] - Optional custom locate service
+     *     URL to use instead of the default M-Lab locate service.
+     * @param {string} [config.clientRegistrationToken] - Optional JWT token for
+     *     registered integrator access. When provided, identifies that tests are
+     *     being run through a registered client integration, enabling access to
+     *     the priority endpoint (v2/priority/nearest) with higher rate limits.
+     *     The token should be obtained from your integrator backend that securely
+     *     manages API credentials with the M-Lab token exchange service. This
+     *     registers your client implementation, not individual end users.
+     * @param {boolean} [config.userAcceptedDataPolicy] - Must be set to true
+     *     to indicate the user has accepted M-Lab's data policy. Required unless
+     *     mlabDataPolicyInapplicable is true.
+     * @param {boolean} [config.mlabDataPolicyInapplicable] - Set to true if
+     *     M-Lab's data policy does not apply to your use case.
+     * @param {Object} userCallbacks - An associative array of user callbacks.
+     * @param {Function} [userCallbacks.error] - Called when an error occurs.
+     *     Receives an error message string. If not provided, errors throw.
+     * @param {Function} [userCallbacks.serverDiscovery] - Called when server
+     *     discovery starts. Receives `{loadbalancer: URL}` where URL is the
+     *     locate service URL being queried.
+     * @param {Function} [userCallbacks.serverChosen] - Called when a server
+     *     is selected. Receives the server object from locate results.
+     * @param {Function} [userCallbacks.downloadStart] - Called when download
+     *     test starts. Receives start event data.
+     * @param {Function} [userCallbacks.downloadMeasurement] - Called during
+     *     download test. Receives `{Source, Data}` where Source is 'client'
+     *     or 'server' and Data contains measurement values.
+     * @param {Function} [userCallbacks.downloadComplete] - Called when download
+     *     completes. Receives `{LastClientMeasurement, LastServerMeasurement}`.
+     * @param {Function} [userCallbacks.uploadStart] - Called when upload
+     *     test starts. Receives start event data.
+     * @param {Function} [userCallbacks.uploadMeasurement] - Called during
+     *     upload test. Receives `{Source, Data}` where Source is 'client'
+     *     or 'server' and Data contains measurement values.
+     * @param {Function} [userCallbacks.uploadComplete] - Called when upload
+     *     completes. Receives `{LastClientMeasurement, LastServerMeasurement}`.
      *
-     * @return {number} Zero on success, and non-zero error code on failure.
+     * @return {number} Zero on success, non-zero on failure.
      *
      * @name ndt7.test
      * @public
