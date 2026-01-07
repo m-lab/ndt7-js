@@ -1,5 +1,3 @@
-/* eslint-env es6, node, browser, mocha */
-
 'use strict';
 
 const ndt7 = require('../ndt7');

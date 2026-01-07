@@ -1,5 +1,3 @@
-/* eslint-env browser, node, worker */
-
 // workerMain is the WebWorker function that runs the ndt7 download test.
 const workerMain = function(ev) {
   'use strict';
