@@ -1,5 +1,3 @@
-/* eslint-env browser, node, worker */
-
 // ndt7 contains the core ndt7 client functionality. Please, refer
 // to the ndt7 spec available at the following URL:
 //

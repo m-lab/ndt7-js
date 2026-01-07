@@ -1,5 +1,3 @@
-/* eslint-env es6, browser, node, worker */
-
 // WebWorker that runs the ndt7 upload test
 const workerMain = function(ev) {
   const url = ev.data['///ndt/v7/upload'];
