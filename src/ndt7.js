@@ -89,13 +89,13 @@
         serverChosen: cb('serverChosen', userCallbacks),
       };
       let protocol = 'wss';
-      if (config && ('protocol' in config)) {
+      if (config && config.protocol) {
         protocol = config.protocol;
       }
 
       const metadata = new URLSearchParams(config.metadata);
       // If a server was specified, use it.
-      if (config && ('server' in config)) {
+      if (config && config.server) {
         // Add metadata as querystring parameters.
         const downloadURL = new URL(protocol + '://' + config.server + '/ndt/v7/download');
         const uploadURL = new URL(protocol + '://' + config.server + '/ndt/v7/upload');
@@ -109,14 +109,14 @@
 
       // If no server was specified then use a loadbalancer. If no loadbalancer
       // is specified, use the locate service from Measurement Lab.
-      // 
+      //
       // When a clientRegistrationToken is provided and no custom loadbalancer
       // is specified, use the priority endpoint.
       let lbURL;
-      if (config && ('loadbalancer' in config)) {
+      if (config && config.loadbalancer) {
         // Use custom loadbalancer if specified
         lbURL = new URL(config.loadbalancer);
-      } else if (config && ('clientRegistrationToken' in config)) {
+      } else if (config && config.clientRegistrationToken) {
         // Use priority endpoint for authenticated requests
         lbURL = new URL('https://locate.measurementlab.net/v2/priority/nearest/ndt/ndt7');
       } else {
@@ -128,7 +128,7 @@
 
       // Prepare fetch options with Authorization header if token is present
       const fetchOptions = {};
-      if (config && ('clientRegistrationToken' in config)) {
+      if (config && config.clientRegistrationToken) {
         fetchOptions.headers = {
           'Authorization': `Bearer ${config.clientRegistrationToken}`,
         };
