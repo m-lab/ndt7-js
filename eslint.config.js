@@ -39,7 +39,11 @@ module.exports = [
         exports: 'readonly',
         // Test globals
         describe: 'readonly',
-        it: 'readonly'
+        it: 'readonly',
+        before: 'readonly',
+        after: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly'
       }
     }
   }

@@ -91,6 +91,104 @@ describe('ndt7.noop', function() {
   });
 });
 
+describe('ndt7.discoverServerURLs with clientRegistrationToken', function() {
+  let originalFetch;
+  let fetchCalls = [];
+
+  before(function() {
+    // Save original fetch (if it exists in Node.js environment)
+    originalFetch = global.fetch;
+
+    // Mock fetch to capture calls and return mock response
+    global.fetch = function(url, options) {
+      fetchCalls.push({url, options: options || {}});
+      return Promise.resolve({
+        json: () => Promise.resolve({
+          results: [{
+            urls: {
+              'wss:///ndt/v7/download': 'wss://example.com/ndt/v7/download',
+              'wss:///ndt/v7/upload': 'wss://example.com/ndt/v7/upload',
+            },
+          }],
+        }),
+      });
+    };
+  });
+
+  afterEach(function() {
+    // Clear fetch calls between tests
+    fetchCalls = [];
+  });
+
+  after(function() {
+    // Restore original fetch
+    global.fetch = originalFetch;
+  });
+
+  it('should use priority endpoint with clientRegistrationToken', async function() {
+    await ndt7.discoverServerURLs({
+      clientRegistrationToken: 'test-token-123',
+      metadata: {},
+    }, {});
+
+    chai.assert.equal(fetchCalls.length, 1, 'fetch should be called once');
+    chai.assert.include(
+        fetchCalls[0].url.toString(),
+        '/v2/priority/nearest',
+        'should use priority endpoint');
+    chai.assert.equal(
+        fetchCalls[0].options.headers.Authorization,
+        'Bearer test-token-123',
+        'should include Authorization header');
+  });
+
+  it('should use regular endpoint without token', async function() {
+    await ndt7.discoverServerURLs({metadata: {}}, {});
+
+    chai.assert.equal(fetchCalls.length, 1, 'fetch should be called once');
+    const urlStr = fetchCalls[0].url.toString();
+    chai.assert.include(urlStr, '/v2/nearest/ndt/ndt7', 'should use regular endpoint');
+    chai.assert.notInclude(urlStr, 'priority', 'should not use priority endpoint');
+    chai.assert.isUndefined(
+        fetchCalls[0].options.headers,
+        'should not include headers');
+  });
+
+  it('should use custom loadbalancer with token', async function() {
+    await ndt7.discoverServerURLs({
+      loadbalancer: 'https://custom.example.com/locate',
+      clientRegistrationToken: 'test-token-456',
+      metadata: {},
+    }, {});
+
+    chai.assert.equal(fetchCalls.length, 1, 'fetch should be called once');
+    chai.assert.include(
+        fetchCalls[0].url.toString(),
+        'custom.example.com',
+        'should use custom loadbalancer');
+    chai.assert.equal(
+        fetchCalls[0].options.headers.Authorization,
+        'Bearer test-token-456',
+        'should include Authorization header with custom loadbalancer');
+  });
+
+  it('should use custom loadbalancer without token', async function() {
+    await ndt7.discoverServerURLs({
+      loadbalancer: 'https://custom.example.com/locate',
+      metadata: {},
+    }, {});
+
+    chai.assert.equal(fetchCalls.length, 1, 'fetch should be called once');
+    chai.assert.include(
+        fetchCalls[0].url.toString(),
+        'custom.example.com',
+        'should use custom loadbalancer');
+    chai.assert.isUndefined(
+        fetchCalls[0].options.headers,
+        'should not include headers without token');
+  });
+});
+
 /*
 describe('ndt7.DownloadTest', function() {
   it('should work as intended', function(done) {

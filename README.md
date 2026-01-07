@@ -37,10 +37,18 @@ which is useful for clients served from the webserver of an NDT server.
 **Kind**: static property of [<code>ndt7</code>](#ndt7)  
 **Access**: public  
 
-| Param | Type | Description |
-| --- | --- | --- |
-| config | <code>Object</code> | An associative array of configuration options. |
-| userCallbacks | <code>Object</code> | An associative array of user callbacks. It uses the callback functions `error`, `serverDiscovery`, and `serverChosen`. |
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| config | <code>Object</code> |  | An associative array of configuration options. |
+| [config.server] | <code>string</code> |  | Optional server hostname to connect to     directly, bypassing the locate service. Useful for testing against a     specific NDT server. |
+| [config.protocol] | <code>string</code> | <code>&quot;&#x27;wss&#x27;&quot;</code> | WebSocket protocol to use.     Either 'wss' (secure WebSocket) or 'ws' (insecure). Defaults to 'wss'. |
+| [config.metadata] | <code>Object</code> |  | Optional metadata to identify your     application. Recommended fields: `client_name` (your application name,     e.g., 'my-speed-test') and `client_version` (your application version,     e.g., '2.1.0'). These are sent as query parameters to help distinguish     different integrations. The library automatically includes     `client_library_name` ('ndt7-js') and `client_library_version`. |
+| [config.loadbalancer] | <code>string</code> |  | Optional custom locate service     URL to use instead of the default M-Lab locate service. |
+| [config.clientRegistrationToken] | <code>string</code> |  | Optional JWT token for     registered integrator access. When provided, identifies that tests are     being run through a registered client integration, enabling access to     the priority endpoint (v2/priority/nearest) with higher rate limits.     The token should be obtained from your integrator backend that securely     manages API credentials with the M-Lab token exchange service. This     registers your client implementation, not individual end users. |
+| userCallbacks | <code>Object</code> |  | An associative array of user callbacks. |
+| [userCallbacks.error] | <code>function</code> |  | Called when an error occurs.     Receives an error message string. If not provided, errors throw. |
+| [userCallbacks.serverDiscovery] | <code>function</code> |  | Called when server     discovery starts. Receives `{loadbalancer: URL}` where URL is the     locate service URL being queried. |
+| [userCallbacks.serverChosen] | <code>function</code> |  | Called when a server     is selected. Receives the server object from locate results. |
 
 <a name="ndt7.downloadTest"></a>
 
@@ -79,11 +87,27 @@ test discovers a server to run against and then runs a download test
 followed by an upload test.
 
 **Kind**: static property of [<code>ndt7</code>](#ndt7)  
-**Returns**: <code>number</code> - Zero on success, and non-zero error code on failure.  
+**Returns**: <code>number</code> - Zero on success, non-zero on failure.  
 **Access**: public  
 
-| Param | Type | Description |
-| --- | --- | --- |
-| config | <code>Object</code> | An associative array of configuration strings |
-| userCallbacks | <code>Object</code> |  |
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| config | <code>Object</code> |  | An associative array of configuration options. |
+| [config.server] | <code>string</code> |  | Optional server hostname to connect to     directly, bypassing the locate service. Useful for testing against a     specific NDT server. |
+| [config.protocol] | <code>string</code> | <code>&quot;&#x27;wss&#x27;&quot;</code> | WebSocket protocol to use.     Either 'wss' (secure WebSocket) or 'ws' (insecure). Defaults to 'wss'. |
+| [config.metadata] | <code>Object</code> |  | Optional metadata to identify your     application. Recommended fields: `client_name` (your application name,     e.g., 'my-speed-test') and `client_version` (your application version,     e.g., '2.1.0'). These are sent as query parameters to help distinguish     different integrations. The library automatically includes     `client_library_name` ('ndt7-js') and `client_library_version`. |
+| [config.loadbalancer] | <code>string</code> |  | Optional custom locate service     URL to use instead of the default M-Lab locate service. |
+| [config.clientRegistrationToken] | <code>string</code> |  | Optional JWT token for     registered integrator access. When provided, identifies that tests are     being run through a registered client integration, enabling access to     the priority endpoint (v2/priority/nearest) with higher rate limits.     The token should be obtained from your integrator backend that securely     manages API credentials with the M-Lab token exchange service. This     registers your client implementation, not individual end users. |
+| [config.userAcceptedDataPolicy] | <code>boolean</code> |  | Must be set to true     to indicate the user has accepted M-Lab's data policy. Required unless     mlabDataPolicyInapplicable is true. |
+| [config.mlabDataPolicyInapplicable] | <code>boolean</code> |  | Set to true if     M-Lab's data policy does not apply to your use case. |
+| userCallbacks | <code>Object</code> |  | An associative array of user callbacks. |
+| [userCallbacks.error] | <code>function</code> |  | Called when an error occurs.     Receives an error message string. If not provided, errors throw. |
+| [userCallbacks.serverDiscovery] | <code>function</code> |  | Called when server     discovery starts. Receives `{loadbalancer: URL}` where URL is the     locate service URL being queried. |
+| [userCallbacks.serverChosen] | <code>function</code> |  | Called when a server     is selected. Receives the server object from locate results. |
+| [userCallbacks.downloadStart] | <code>function</code> |  | Called when download     test starts. Receives start event data. |
+| [userCallbacks.downloadMeasurement] | <code>function</code> |  | Called during     download test. Receives `{Source, Data}` where Source is 'client'     or 'server' and Data contains measurement values. |
+| [userCallbacks.downloadComplete] | <code>function</code> |  | Called when download     completes. Receives `{LastClientMeasurement, LastServerMeasurement}`. |
+| [userCallbacks.uploadStart] | <code>function</code> |  | Called when upload     test starts. Receives start event data. |
+| [userCallbacks.uploadMeasurement] | <code>function</code> |  | Called during     upload test. Receives `{Source, Data}` where Source is 'client'     or 'server' and Data contains measurement values. |
+| [userCallbacks.uploadComplete] | <code>function</code> |  | Called when upload     completes. Receives `{LastClientMeasurement, LastServerMeasurement}`. |
 
