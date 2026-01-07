@@ -28,7 +28,7 @@
     "node": ">=18"
   },
   "devDependencies": {
-    "chai": "^6.2.2",
+    "chai": "^4.5.0",
     "eslint": "^9.39.2",
     "eslint-config-google": "^0.14.0",
     "express": "^5.2.1",
