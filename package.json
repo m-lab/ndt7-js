@@ -1,6 +1,6 @@
 {
   "name": "@m-lab/ndt7",
-  "version": "0.1.0",
+  "version": "0.1.3",
   "description": "NDT7 client for measuring networks",
   "main": "src/ndt7.js",
   "scripts": {
@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "github.com/m-lab/ndt7-js"
+    "url": "https://github.com/m-lab/ndt7-js"
   },
   "keywords": [
     "network",
