@@ -7,9 +7,7 @@
     "test": "mocha src/test",
     "coverage": "nyc --reporter=lcovonly  --file=coverage.cov --reporter=text npm run test",
     "lint": "eslint --ext .js src/",
-    "document": "jsdoc2md --files=src/ndt7.js --template README.template.md > README.md",
-    "minify": "minify --js < src/ndt7.js | sed -e 's/ndt7-download-worker\\.js/ndt7-download-worker.min.js/g' -e 's/ndt7-upload-worker\\.js/ndt7-upload-worker.min.js/g' > src/ndt7.min.js && minify --js < src/ndt7-download-worker.js > src/ndt7-download-worker.min.js && minify --js < src/ndt7-upload-worker.js > src/ndt7-upload-worker.min.js",
-    "prepublishOnly": "npm run minify"
+    "document": "jsdoc2md --files=src/ndt7.js --template README.template.md > README.md"
   },
   "repository": {
     "type": "git",
@@ -33,7 +31,6 @@
     "eslint-config-google": "^0.14.0",
     "express": "^5.2.1",
     "jsdoc-to-markdown": "^9.1.3",
-    "minify": "^15.0.1",
     "mocha": "^11.7.5",
     "nyc": "^17.1.0"
   },
