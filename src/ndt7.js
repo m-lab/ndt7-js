@@ -19,6 +19,12 @@
       'client_library_name': 'ndt7-js',
       'client_library_version': '0.1.4',
     };
+    // Maximum time in milliseconds to wait for a worker to complete before
+    // forcefully terminating it. Most clients complete in ~10 seconds but some
+    // may take longer. This 12-second timeout ensures workers terminate in time
+    // to send a final measurement before the socket timeout (~15 seconds).
+    const WORKER_TIMEOUT_MS = 12000;
+    
     // cb creates a default-empty callback function, allowing library users to
     // only need to specify callback functions for the events they care about.
     //
@@ -198,12 +204,10 @@
         };
       });
 
-      // If the worker takes 12 seconds, kill it and return an error code.
-      // Most clients take longer than 10 seconds to complete the upload and
-      // finish sending the buffer's content, sometimes hitting the socket's
-      // timeout of 15 seconds. This makes sure uploads terminate on time and
-      // get a chance to send one last measurement after 10s.
-      const workerTimeout = setTimeout(() => worker.resolve(0), 12000);
+      // If the worker takes too long, kill it and return a success code.
+      // This timeout ensures clients can send a final measurement before the
+      // socket timeout. See WORKER_TIMEOUT_MS constant.
+      const workerTimeout = setTimeout(() => worker.resolve(0), WORKER_TIMEOUT_MS);
 
       // This is how the worker communicates back to the main thread of
       // execution.  The MsgTpe of `ev` determines which callback the message
