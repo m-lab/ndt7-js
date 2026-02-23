@@ -27,7 +27,7 @@
   },
   "devDependencies": {
     "chai": "^6.2.2",
-    "eslint": "^9.39.2",
+    "eslint": "^10.0.1",
     "eslint-config-google": "^0.14.0",
     "express": "^5.2.1",
     "jsdoc-to-markdown": "^9.1.3",
