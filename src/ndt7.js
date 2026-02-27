@@ -198,23 +198,32 @@
         };
       });
 
-      // If the worker takes 12 seconds, kill it and return an error code.
-      // Most clients take longer than 10 seconds to complete the upload and
-      // finish sending the buffer's content, sometimes hitting the socket's
-      // timeout of 15 seconds. This makes sure uploads terminate on time and
-      // get a chance to send one last measurement after 10s.
-      const workerTimeout = setTimeout(() => worker.resolve(0), 12000);
+      // Connection timeout: if the WebSocket never opens (and never
+      // fires onerror/onclose), resolve after 10s to prevent the
+      // promise from hanging indefinitely.
+      const connTimeout = setTimeout(() => worker.resolve(0), 10000);
+
+      // The test duration timeout is set when the worker reports
+      // 'start' (i.e. sock.onopen), so that WS+TLS handshake time
+      // does not eat into the test duration.
+      let workerTimeout;
 
       // This is how the worker communicates back to the main thread of
       // execution.  The MsgTpe of `ev` determines which callback the message
       // gets forwarded to.
       worker.onmessage = function(ev) {
         if (!ev.data || !ev.data.MsgType || ev.data.MsgType === 'error') {
+          clearTimeout(connTimeout);
           clearTimeout(workerTimeout);
           worker.resolve(1);
           const msg = (!ev.data) ? `${testType} error` : ev.data.Error;
           callbacks.error(msg);
         } else if (ev.data.MsgType === 'start') {
+          clearTimeout(connTimeout);
+          // Safety timeout anchored to connect, not worker creation.
+          // 12s gives the server's 10s duration time to finish plus
+          // margin for the upload buffer to drain.
+          workerTimeout = setTimeout(() => worker.resolve(0), 12000);
           callbacks.start(ev.data.Data);
         } else if (ev.data.MsgType == 'measurement') {
           // For performance reasons, we parse the JSON outside of the thread
@@ -241,7 +250,8 @@
       // We can't start the worker until we know the right server, so we wait
       // here to find that out.
       const urls = await urlPromise.catch((err) => {
-        // Clear timer, terminate the worker and rethrow the error.
+        // Clear timers, terminate the worker and rethrow the error.
+        clearTimeout(connTimeout);
         clearTimeout(workerTimeout);
         worker.resolve(2);
         throw err;
