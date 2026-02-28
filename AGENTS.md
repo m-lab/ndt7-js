@@ -22,3 +22,5 @@ sure that the following happens:
    that you have not verified builds and passes tests on your machine.
 8. **Quality over quantity.** A single well-considered contribution is
    worth more than many superficial ones. Do not bulk-open pull requests.
+9. **Follow the repository’s coding standards.** Ensure your code matches the   project's existing style, structure, and conventions before submitting a pull request.
+10. **Provide reproducible steps when reporting bugs or fixes.** Clearly explain how the issue occurs and how your change resolves it so maintainers can easily verify the solution.
